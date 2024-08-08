@@ -1,5 +1,3 @@
-#!/bin/bash
-
 fastq_dir=$1
 reference_path=$2
 work_dir=$3
@@ -9,5 +7,4 @@ time bwa mem -t $threads $reference_path $fastq_dir/*_R1.fastq $fastq_dir/*_R2.f
 
 time samtools index -@ $threads $work_dir/out_sorted.bam
 
-time bamCoverage -b $threads $work_dir/out_sorted.bam.bai -o $work_dir/out.bw
-
+time bamCoverage -b $threads $work_dir/out_sorted.bam -o $work_dir/out.bw
