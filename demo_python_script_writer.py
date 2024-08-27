@@ -119,8 +119,8 @@ done
 
 cd
 mkdir {data_dir}/{i}/fastq
-zcat {data_dir}/{i}/{i}_n1/*R1*.fastq.gz {data_dir}/{i}/{i}_n2/*R1*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R1.fastq.gz
-zcat {data_dir}/{i}/{i}_n1/*R2*.fastq.gz {data_dir}/{i}/{i}_n2/*R2*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R2.fastq.gz
+zcat {data_dir}/{i}/{i}_n1/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R1*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R1.fastq.gz
+zcat {data_dir}/{i}/{i}_n1/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R2*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R2.fastq.gz
 
                                ''')
     elif struct[i]['count']==4:
@@ -222,8 +222,8 @@ done
 
 cd
 mkdir {data_dir}/{i}/fastq
-zcat {data_dir}/{i}/{i}_n1/*R1*.fastq.gz {data_dir}/{i}/{i}_n2/*R1*.fastq.gz {data_dir}/{i}/{i}_n3/*R1*.fastq.gz {data_dir}/{i}/{i}_n4/*R1*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R1.fastq.gz
-zcat {data_dir}/{i}/{i}_n1/*R2*.fastq.gz {data_dir}/{i}/{i}_n2/*R2*.fastq.gz {data_dir}/{i}/{i}_n3/*R2*.fastq.gz {data_dir}/{i}/{i}_n4/*R2*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R2.fastq.gz
+zcat {data_dir}/{i}/{i}_n1/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n3/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n4/fastq/*R1*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R1.fastq.gz
+zcat {data_dir}/{i}/{i}_n1/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n3/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n4/fastq/*R2*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R2.fastq.gz
                                ''')
     else:
         print("There is a problem with count of files pairs. Please check, that there are 1, 2 or 4 file pairs in table")
