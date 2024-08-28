@@ -1,7 +1,7 @@
 import os
 import pandas as pd
-df=pd.read_csv("/home/alexey/Desktop/Lab/Blue_Sky/CNV_detector_10^6+ - Sheet1.csv")
-work_dir='/home/alexey/Desktop/Lab/Blue_Sky/work_dir/'
+df=pd.read_csv(str(input("Enter path to csv-file with links:")))
+work_dir=str(input("Enter your work directory path:"))
 
 struct={}
 for i, item in enumerate(df['Sample (е-эмбрион. к-биоптат)']):
@@ -49,9 +49,9 @@ wget {struct[i]['n1_R2']}
 r=1
 for file in *
 do
-if [ "$file" -ne "*R1*.fastq.gz" -o "$file" -ne "*R2*.fastq.gz" ]
+if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
 then
-id=($file cut -d '.' -f1)
+id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
 mv "$file" "$new_name"
 fi
@@ -78,9 +78,9 @@ wget {struct[i]['n1_R2']}
 r=1
 for file in *
 do
-if [ "$file" -ne "*R1*.fastq.gz" -o "$file" -ne "*R2*.fastq.gz" ]
+if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
 then
-id=($file cut -d '.' -f1)
+id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
 mv "$file" "$new_name"
 fi
@@ -101,9 +101,9 @@ wget {struct[i]['n2_R2']}
 r=1
 for file in *
 do
-if [ "$file" -ne "*R1*.fastq.gz" -o "$file" -ne "*R2*.fastq.gz" ]
+if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
 then
-id=($file cut -d '.' -f1)
+id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
 
 mv "$file" "$new_name"
@@ -119,8 +119,8 @@ done
 
 cd
 mkdir {data_dir}/{i}/fastq
-zcat {data_dir}/{i}/{i}_n1/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R1*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R1.fastq.gz
-zcat {data_dir}/{i}/{i}_n1/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R2*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R2.fastq.gz
+zcat {data_dir}/{i}/{i}_n1/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R1*.fastq.gz|gzip > {data_dir}/{i}/fastq/{i}_R1.fastq.gz
+zcat {data_dir}/{i}/{i}_n1/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R2*.fastq.gz|gzip > {data_dir}/{i}/fastq/{i}_R2.fastq.gz
 
                                ''')
     elif struct[i]['count']==4:
@@ -136,9 +136,9 @@ wget {struct[i]['n1_R2']}
 r=1
 for file in *
 do
-if [ "$file" -ne "*R1*.fastq.gz" -o "$file" -ne "*R2*.fastq.gz" ]
+if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
 then
-id=($file cut -d '.' -f1)
+id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
 mv "$file" "$new_name"
 fi
@@ -158,9 +158,9 @@ wget {struct[i]['n2_R2']}
 r=1
 for file in *
 do
-if [ "$file" -ne "*R1*.fastq.gz" -o "$file" -ne "*R2*.fastq.gz" ]
+if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
 then
-id=($file cut -d '.' -f1)
+id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
 mv "$file" "$new_name"
 fi
@@ -182,9 +182,9 @@ wget {struct[i]['n3_R2']}
 r=1
 for file in *
 do
-if [ "$file" -ne "*R1*.fastq.gz" -o "$file" -ne "*R2*.fastq.gz" ]
+if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
 then
-id=($file cut -d '.' -f1)
+id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
 mv "$file" "$new_name"
 fi
@@ -206,9 +206,9 @@ wget {struct[i]['n4_R2']}
 r=1
 for file in *
 do
-if [ "$file" -ne "*R1*.fastq.gz" -o "$file" -ne "*R2*.fastq.gz" ]
+if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
 then
-id=($file cut -d '.' -f1)
+id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
 mv "$file" "$new_name"
 fi
@@ -222,11 +222,8 @@ done
 
 cd
 mkdir {data_dir}/{i}/fastq
-zcat {data_dir}/{i}/{i}_n1/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n3/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n4/fastq/*R1*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R1.fastq.gz
-zcat {data_dir}/{i}/{i}_n1/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n3/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n4/fastq/*R2*.fastq.gz|{data_dir}/{i}/fastq/{struct[i]}_R2.fastq.gz
+zcat {data_dir}/{i}/{i}_n1/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n3/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n4/fastq/*R1*.fastq.gz|gzip > {data_dir}/{i}/fastq/{i}_R1.fastq.gz
+zcat {data_dir}/{i}/{i}_n1/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n3/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n4/fastq/*R2*.fastq.gz|gzip > {data_dir}/{i}/fastq/{i}_R2.fastq.gz
                                ''')
     else:
         print("There is a problem with count of files pairs. Please check, that there are 1, 2 or 4 file pairs in table")
-
-
-
