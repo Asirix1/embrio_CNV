@@ -2,6 +2,10 @@ import os
 import pandas as pd
 df=pd.read_csv(str(input("Enter path to csv-file with links:")))
 work_dir=str(input("Enter your work directory path:"))
+aligner=str(input("Enter path to bw_pipeline:"))
+threads=int(input("Enter the maximal number of threads:"))
+reference=str(input("Enter path to reference genome:"))
+MAPQ=str(input("Enter required MAPQ:"))
 
 struct={}
 for i, item in enumerate(df['Sample (е-эмбрион. к-биоптат)']):
@@ -20,17 +24,21 @@ for i, item in enumerate(df['Sample (е-эмбрион. к-биоптат)']):
         struct[item]['count']=1
         struct[item]['n1_R1']=df['R1'][i]
         struct[item]['n1_R2']=df['R2'][i]
-data_dir=work_dir+'data'
+data_dir=work_dir+'/data'
 try:
     os.mkdir(path=data_dir)
 except:
     print('Data directory also exist. Please check files whithin.')
-script_dir=work_dir+'scripts'
+script_dir=work_dir+'/scripts'
 try:
     os.mkdir(path=script_dir)
 except:
     print('Scripts directory also exist. Please check files whithin.')
-
+bw_dir=data_dir+'/bw'
+try:
+    os.mkdir(path=bw_dir)
+except:
+    print('BW directory also exist. Please check files whithin.')
 
 #a way to trick combination of bash and f-string syntaxis
 id="{id}"
@@ -63,6 +71,7 @@ r=1
 fi
 done
 
+bash {aligner} {data_dir}/{i}/fastq/ {reference} {data_dir}/bw {threads} {MAPQ}
 
                 ''')
     elif struct[i]['count']==2:
@@ -121,6 +130,8 @@ cd
 mkdir {data_dir}/{i}/fastq
 zcat {data_dir}/{i}/{i}_n1/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R1*.fastq.gz|gzip > {data_dir}/{i}/fastq/{i}_R1.fastq.gz
 zcat {data_dir}/{i}/{i}_n1/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R2*.fastq.gz|gzip > {data_dir}/{i}/fastq/{i}_R2.fastq.gz
+
+bash {aligner} {data_dir}/{i}/fastq/ {reference} {data_dir}/bw {threads} {MAPQ}
 
                                ''')
     elif struct[i]['count']==4:
@@ -224,6 +235,8 @@ cd
 mkdir {data_dir}/{i}/fastq
 zcat {data_dir}/{i}/{i}_n1/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n3/fastq/*R1*.fastq.gz {data_dir}/{i}/{i}_n4/fastq/*R1*.fastq.gz|gzip > {data_dir}/{i}/fastq/{i}_R1.fastq.gz
 zcat {data_dir}/{i}/{i}_n1/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n2/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n3/fastq/*R2*.fastq.gz {data_dir}/{i}/{i}_n4/fastq/*R2*.fastq.gz|gzip > {data_dir}/{i}/fastq/{i}_R2.fastq.gz
+
+bash {aligner} {data_dir}/{i}/fastq/ {reference} {data_dir}/bw {threads} {MAPQ}
                                ''')
     else:
         print("There is a problem with count of files pairs. Please check, that there are 1, 2 or 4 file pairs in table")
