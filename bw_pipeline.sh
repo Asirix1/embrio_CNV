@@ -6,7 +6,7 @@ work_dir=$3
 threads=$4
 MAPQ=$5
 
-time bwa mem -t $threads $reference_path $fastq_dir/*R1*.fastq $fastq_dir/*R2*.fastq |samtools view  -b -@ $threads -h -F 4 |samtools sort -@ $threads -o $work_dir/out_sorted.bam
+time bwa mem -t $threads $reference_path $fastq_dir/*R1*.fastq.gz $fastq_dir/*R2*.fastq.gz |samtools view  -b -@ $threads -h -F 4 |samtools sort -@ $threads -o $work_dir/out_sorted.bam
 
 time samtools index -@ $threads $work_dir/out_sorted.bam
 
