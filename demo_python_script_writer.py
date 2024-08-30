@@ -57,7 +57,7 @@ wget {struct[i]['n1_R2']}
 r=1
 for file in *
 do
-if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
+if [[ "$file" != *R1*.fastq.gz && "$file" != *R2*.fastq.gz ]]
 then
 id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
@@ -87,7 +87,7 @@ wget {struct[i]['n1_R2']}
 r=1
 for file in *
 do
-if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
+if [[ "$file" != *R1*.fastq.gz && "$file" != *R2*.fastq.gz ]]
 then
 id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
@@ -110,7 +110,7 @@ wget {struct[i]['n2_R2']}
 r=1
 for file in *
 do
-if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
+if [[ "$file" != *R1*.fastq.gz && "$file" != *R2*.fastq.gz ]]
 then
 id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
@@ -147,7 +147,7 @@ wget {struct[i]['n1_R2']}
 r=1
 for file in *
 do
-if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
+if [[ "$file" != *R1*.fastq.gz && "$file" != *R2*.fastq.gz ]]
 then
 id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
@@ -169,7 +169,7 @@ wget {struct[i]['n2_R2']}
 r=1
 for file in *
 do
-if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
+if [[ "$file" != *R1*.fastq.gz && "$file" != *R2*.fastq.gz ]]
 then
 id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
@@ -193,7 +193,7 @@ wget {struct[i]['n3_R2']}
 r=1
 for file in *
 do
-if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
+if [[ "$file" != *R1*.fastq.gz && "$file" != *R2*.fastq.gz ]]
 then
 id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
@@ -217,7 +217,7 @@ wget {struct[i]['n4_R2']}
 r=1
 for file in *
 do
-if [[ "$file" != *R1*.fastq.gz || "$file" != *R2*.fastq.gz ]]
+if [[ "$file" != *R1*.fastq.gz && "$file" != *R2*.fastq.gz ]]
 then
 id="$( cut -d '.' -f1 <<< "$file" )"
 new_name="${id}R${r}.fastq.gz"
