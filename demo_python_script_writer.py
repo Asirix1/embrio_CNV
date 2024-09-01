@@ -1,11 +1,24 @@
 import os
 import pandas as pd
-df=pd.read_csv(str(input("Enter path to csv-file with links:")))
-work_dir=str(input("Enter your work directory path:"))
-aligner=str(input("Enter path to bw_pipeline:"))
-threads=int(input("Enter the maximal number of threads:"))
-reference=str(input("Enter path to reference genome:"))
-MAPQ=str(input("Enter required MAPQ:"))
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("-csv", "--csv", help="path to csv-file")
+parser.add_argument("-d", "--work_dir", help="your work directory")
+parser.add_argument("-bwp", "--BigWig_pipeline", help="path to bw_pipeline")
+parser.add_argument("-t", "--threads", default=1, help="the maximal number of threads")
+parser.add_argument("-g", "--reference", help="path to reference genome")
+parser.add_argument("-q", "--MAPQ", default=30, help="required MAPQ")
+args = parser.parse_args()
+df=pd.read_csv(f"{args.csv}")
+work_dir=args.work_dir
+aligner=args.BigWig_pipeline
+threads=args.threads
+reference=args.reference
+MAPQ=args.MAPQ
+
+
+
+
 
 struct={}
 for i, item in enumerate(df['Sample (е-эмбрион. к-биоптат)']):
