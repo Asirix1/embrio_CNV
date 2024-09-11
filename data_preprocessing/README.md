@@ -1,1 +1,2 @@
+# FASTQ to BigWig pipeline
 
