@@ -17,6 +17,7 @@ You can add several acts of sequencing or sequencing data from several slots wit
 The script can write in output:
 "Sample {sample_name} has 3 file pairs. Please ensure there are 1, 2, or 4 file pairs."
 Do not worry if you have specially added not 1, 2 or 4 file pairs of one sample.
+
 3) Create a work directory (work_dir).
 4) Run
 ```
