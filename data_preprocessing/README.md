@@ -32,7 +32,7 @@ python3 python_script_writer.py -csv file_with_download_links.csv -d work_dir -b
 ```
 bash sample.sh
 ```
-or you can run all samples at once:
+or you can run scripts for all samples at once:
 ```
 bash scr_pr.sh work_dir/scripts
 ```
