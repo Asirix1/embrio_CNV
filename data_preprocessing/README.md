@@ -5,18 +5,45 @@
 2) Java = 17   (should be installed befor picard istallation)
 3) 
   	- [bwa](https://github.com/open2c/cooler) (for aligning genome) (it can be istallad with ``` conda install bwa -c bioconda ```)
-  	- [picard](https://github.com/broadinstitute/picard)) (for marking duplicates)
     - [samtools](https://github.com/samtools/samtools) (for sorting genome) (it can be istallad with ``` conda install bwa -c samtools ```)
+  	- [picard](https://github.com/broadinstitute/picard) (for marking duplicates)
 
 # Quick Start
 
-1) Create your csv-file with downloads links
-Example:
-
-
+1) Create your csv-file as in example CNV_filt.csv with downloads links to R1 and R2 in *.fastq.gz* or *fq.gz* format (characters *R1* or *R2* in filenames are not obligatory.
+(!) There sould be the same header as in exaple CNV_filt.csv.
+You can add several acts of sequencing or sequencing data from several slots with the same sample name. In this case file pairs will be merged by pipeline.
+The script can write in output:
+"Sample {sample_name} has 3 file pairs. Please ensure there are 1, 2, or 4 file pairs."
+Do not worry if you have specially added not 1, 2 or 4 file pairs of one sample.
+3) Create a work directory.
+4) Run
 ```
-Sample (е-эмбрион. к-биоптат),R1,R2,,,,
-[test,trn,chr1,0,,1000000,!>,der1,1](https://genedev.bionet.nsc.ru/ftp/_RawReads/2022-11-07_BGI_Moscow/Demultiplexed/embryo6/embryo6_R1.fastq.gz,https://genedev.bionet.nsc.ru/ftp/_RawReads/2022-11-07_BGI_Moscow/Demultiplexed/embryo6/embryo6_R2.fastq.gz),,,,
-test,trn,chr1,2000000,7000000,>>,der1,1
+python3 python_script_writer.py -csv file_with_download_links.csv -d work_dir -bwp bw_pipeline_picard_md_of.sh -t threads -g reference_genome.fa -q required_MAPQ
 ```
-3) Duplicate [EXAMPLE.ini file](testdataset/EXAMPLE.ini) and modify:
+5) Look output shell-scripts in the directory work_dir/scripts. There should be one script to each sample.
+6) You can run scripts separately:
+```
+bash sample.sh
+```
+or you can run all samples at once:
+```
+bash scr_pr.sh work_dir/scripts
+```
+7) Output *.bam* and *.bw* files will be located in work_dir/data/bw .
+8) You can remove all fastq-files from your directory with
+```
+bash remove_fastq.sh dir
+```
+8) You can remove all *.bam* and *.bam.bai* files from your directory with
+```
+bash remove_bam_bai.sh dir
+```
+10) You can remove all bw-files from your directory with
+```
+bash remove_bw.sh dir
+```
+11) You can remove all *metrics.txt* files from your directory with
+```
+bash remove_metrics.sh dir
+``` 
