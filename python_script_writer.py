@@ -21,45 +21,26 @@ mkdir -p fastq
     if sample_data['count']==1:
         f.write(f'''# Processing {sample_name}
 cd {data_dir}/{sample_name}/fastq
-wget {sample_data[f'n1_R1']}
-wget {sample_data[f'n1_R2']}
-
-r=1
-for file in *
-do
-    if [[ "$file" != *R1*.fastq.gz && "$file" != *R2*.fastq.gz ]]
-    then
-        id="$( cut -d '.' -f1 <<< "$file" )"
-        new_name="${{id}}R${{r}}.fastq.gz"
-        mv "$file" "$new_name"
-    fi
-    r=$((3-r)) # Toggle between 1 and 2
-done
+wget {sample_data[f'n1_R1']} -O {sample_name}_R1.fastq.gz
+wget {sample_data[f'n1_R2']} -O {sample_name}_R2.fastq.gz
 
 cd
 
 ''')
 
     if sample_data['count'] > 1:
+        f.write(f'''   
+cd {data_dir}/{sample_name}
+''')
         for n in range(1, sample_data['count'] + 1):
             f.write(f'''# Processing {sample_name}_n{n}
-cd {data_dir}/{sample_name}
 mkdir -p {sample_name}_n{n}/fastq
 cd {data_dir}/{sample_name}/{sample_name}_n{n}/fastq
-wget {sample_data[f'n{n}_R1']}
-wget {sample_data[f'n{n}_R2']}
-r=1
-for file in *
-do
-    if [[ "$file" != *R1*.fastq.gz && "$file" != *R2*.fastq.gz ]]
-    then
-        id="$( cut -d '.' -f1 <<< "$file" )"
-        new_name="${{id}}R${{r}}.fastq.gz"
-        mv "$file" "$new_name"
-    fi
-    r=$((3-r)) # Toggle between 1 and 2
-done
-
+wget {sample_data[f'n{n}_R1']} -O {sample_name}_n{n}_R1.fastq.gz
+wget {sample_data[f'n{n}_R2']} -O {sample_name}_n{n}_R2.fastq.gz
+''')
+            if n==sample_data['count']:
+                f.write(f'''
 cd
 zcat {" ".join([f"{data_dir}/{sample_name}/{sample_name}_n{n}/fastq/*R1*.fastq.gz" for n in range(1, sample_data['count'] + 1)])} | gzip > {data_dir}/{sample_name}/fastq/{sample_name}_R1.fastq.gz
 zcat {" ".join([f"{data_dir}/{sample_name}/{sample_name}_n{n}/fastq/*R2*.fastq.gz" for n in range(1, sample_data['count'] + 1)])} | gzip > {data_dir}/{sample_name}/fastq/{sample_name}_R2.fastq.gz
