@@ -16,7 +16,7 @@
 
 You can add several acts of sequencing or sequencing data from several slots with the same sample name. In this case file pairs will be merged by pipeline.
 
-The script can write this warning in output:
+The script can write this warning in the output:
 
 "Sample {sample_name} has 3 file pairs. Please ensure there are 1, 2, or 4 file pairs."
 
