@@ -8,6 +8,25 @@
     - [samtools](https://github.com/samtools/samtools) (for sorting genome) (it can be installad with ``` conda install bwa -c samtools ```)
   	- [picard](https://github.com/broadinstitute/picard) (for marking duplicates)
 
+*picard* can be installed as follow:
+```
+git clone https://github.com/broadinstitute/picard.git```
+```
+```
+cd picard/
+```
+```
+./gradlew shadowJar
+```
+
+Check picard is installed:
+```
+cd picard/
+```
+```
+java -jar build/libs/picard.jar
+```
+
 # Quick Start
 
 1) Create your csv-file as in example CNV_filt.csv with download links to R1 and R2 in *.fastq.gz* or *fq.gz* format (characters *R1* or *R2* in filenames are not obligatory).
