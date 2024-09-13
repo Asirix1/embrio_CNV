@@ -29,15 +29,13 @@ cd
 ''')
 
     if sample_data['count'] > 1:
-        f.write(f'''   
-cd {data_dir}/{sample_name}
-''')
-        for n in range(1, sample_data['count'] + 1):
+      for n in range(1, sample_data['count'] + 1):
             f.write(f'''# Processing {sample_name}_n{n}
+cd {data_dir}/{sample_name}
 mkdir -p {sample_name}_n{n}/fastq
 cd {data_dir}/{sample_name}/{sample_name}_n{n}/fastq
 wget {sample_data[f'n{n}_R1']} -O {sample_name}_n{n}_R1.fastq.gz
-wget {sample_data[f'n{n}_R2']} -O {sample_name}_n{n}_R2.fastq.gz
+wget {sample_data[f'n{n}_R2']} -O {sample_name}_n{n}_R2.fastq.gz 
 ''')
             if n==sample_data['count']:
                 f.write(f'''
