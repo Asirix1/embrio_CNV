@@ -5,7 +5,7 @@
 2) Java = 17   (should be installed befor picard istallation) (it can be installad with ``` mamba install openjdk=17.0.3 ```)
 3) 
   	- [bwa](https://github.com/open2c/cooler) (for aligning genome) (it can be installad with ``` conda install bwa -c bioconda ```)
-    - [samtools](https://github.com/samtools/samtools) (for sorting genome) (it can be installad with ``` conda install bwa -c samtools ```)
+    - [samtools](https://github.com/samtools/samtools) (for sorting genome) (it can be installad with ``` conda install samtools -c bioconda ```)
   	- [picard](https://github.com/broadinstitute/picard) (for marking duplicates)
 
 *picard* can be installed as follow:
