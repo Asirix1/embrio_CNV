@@ -26,6 +26,7 @@ cd picard/
 ```
 java -jar build/libs/picard.jar
 ```
+For more information see https://github.com/broadinstitute/picard .
 
 # Quick Start
 
