@@ -10,7 +10,7 @@
 
 *picard* can be installed as follow:
 ```
-git clone https://github.com/broadinstitute/picard.git```
+git clone https://github.com/broadinstitute/picard.git
 ```
 ```
 cd picard/
