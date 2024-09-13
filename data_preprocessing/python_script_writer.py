@@ -54,10 +54,12 @@ def main():
     parser.add_argument("-t", "--threads", type=int, default=1, help="the maximal number of threads")
     parser.add_argument("-g", "--reference", help="path to reference genome", required=True)
     parser.add_argument("-q", "--MAPQ", type=int, default=30, help="required MAPQ")
+    parser.add_argument("-ch", "--checking", type=str, default=True, help="Checking the correctness of links.")
     args = parser.parse_args()
 
     df = pd.read_csv(args.csv)
 
+    checking=args.checking
     work_dir = args.work_dir
     aligner = args.BigWig_pipeline
     threads = args.threads
@@ -73,6 +75,9 @@ def main():
         count = struct[item]['count']
         struct[item][f'n{count}_R1'] = df['R1'][i]
         struct[item][f'n{count}_R2'] = df['R2'][i]
+        if checking:
+            assert struct[item][f'n{count}_R1']!=struct[item][f'n{count}_R2'], f'Tere are the same R1 and R2 links for {item} with {df["Sequenced Read Pairs"][i]} Sequenced Read Pairs.'
+            assert struct[item][f'n{count}_R1'].split('/')[-1].translate(str.maketrans('', '', '12'))==struct[item][f'n{count}_R2'].split('/')[-1].translate(str.maketrans('', '', '12')), f'Tere is wrong R1 or R2 link for {item} with {df["Sequenced Read Pairs"][i]} Sequenced Read Pairs.'
 
     data_dir = os.path.join(work_dir, 'data')
     create_directory(data_dir)
