@@ -67,7 +67,7 @@ def main():
     MAPQ = args.MAPQ
 
     struct = {}
-    for i, item in enumerate(df['Sample (е-эмбрион. к-биоптат)']):
+    for i, item in enumerate(df['Sample']):
         if item not in struct:
             struct[item] = {'count': 0}
         
