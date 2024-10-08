@@ -17,4 +17,4 @@ time java -jar build/libs/picard.jar MarkDuplicates -I ${work_dir}/${sample}_sor
 
 time samtools index -@ $threads ${work_dir}/${sample}_marked_duplicates.bam
 
-time bamCoverage -b ${work_dir}/${sample}_marked_duplicates.bam -o $work_dir/${sample}_md_offset.bw -p $threads --minMappingQuality $MAPQ --Offset 1 1
+time bamCoverage -b ${work_dir}/${sample}_marked_duplicates.bam -o $work_dir/${sample}_md_offset.bw -p $threads --minMappingQuality $MAPQ --Offset 1 1 --binSize 1
