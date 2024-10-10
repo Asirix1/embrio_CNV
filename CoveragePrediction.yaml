@@ -1,0 +1,68 @@
+TASK_NAME: coverage_prediction
+HOME_PATH: /mnt/nfs_dna/popov
+MODEL_PATH_ROOT: ${HOME_PATH}/CNV_prediction/Models_scripts/Models/${TASK_NAME}
+
+
+tokenizer:
+  _target_: transformers.AutoTokenizer.from_pretrained
+  pretrained_model_name_or_path: "AIRI-Institute/gena-lm-bert-base-t2t"
+args_params:
+  _target_: builtins.dict
+  tokenizer_path: "AIRI-Institute/gena-lm-bert-base-t2t"
+  init_checkpoint: null 
+  model_cfg: "./data/configs/L12-H768-A12-V32k-preln.json"
+  model_cls: "Coverage_Prediction_Model:BertForCoveragePrediction"
+  model_path: ${MODEL_PATH_ROOT}
+  optimizer: "AdamW"
+  weight_decay: 0.0
+  seed: 42
+  num_warmup_steps: 1500
+  log_interval: 1000
+  valid_interval: 1000
+  save_best: True
+  save_interval: 5000
+  data_n_workers: 8
+  lr: 5e-05
+  lr_scheduler: "cosine"
+  reset_lr: True
+  reset_optimizer: True
+  reset_iteration: True
+  early_stopping_patience: 30
+  iters: 50000
+
+model_kwargs:
+  _target_: builtins.dict
+  loss_fct:
+    _target_: torch.nn.PoissonNLLLoss
+  activation:
+    _target_: torch.nn.Identity
+  config:
+    _target_: builtins.dict
+    classifier_dropout: 0
+  num_fc_layers: 3
+
+train_dataset:
+  _target_: CoverageDataset.CoverageDataset
+  targets_path: "/mnt/nfs_dna/popov/CNV_prediction/big_wigs/bigwigs.txt"
+  tokenized_genome_path: "/mnt/nfs_dna/popov/CNV_prediction/tokenized_genome/merged_tokens.hdf5"
+  key_file_path: '/mnt/nfs_dna/popov/CNV_prediction/Models_scripts/second_train_keys.txt'
+  tokenizer: "AIRI-Institute/gena-lm-bert-base-t2t"
+  max_seq_len: 512
+  force_h5: True
+  loglevel:
+    "_target_": "logging.getLevelName"
+    "level": "DEBUG"
+  seed: ${args_params.seed}
+
+valid_dataset:
+  _target_: CoverageDataset.CoverageDataset
+  targets_path: "/mnt/nfs_dna/popov/CNV_prediction/big_wigs/bigwigs.txt"
+  tokenized_genome_path: "/mnt/nfs_dna/popov/CNV_prediction/tokenized_genome/merged_tokens.hdf5"
+  tokenizer: "AIRI-Institute/gena-lm-bert-base-t2t"
+  key_file_path: '/mnt/nfs_dna/popov/CNV_prediction/Models_scripts/second_val_keys.txt'
+  max_seq_len: 512
+  force_h5: True
+  loglevel:
+    "_target_": "logging.getLevelName"
+    "level": "DEBUG"
+  seed: ${args_params.seed}
