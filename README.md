@@ -1,4 +1,4 @@
-# embryo_CNV
+# embrio_CNV
 
 # FASTQ to BigWig pipeline (data preprocessing)
 
