@@ -96,7 +96,7 @@ To start model fine-tuning, use the following command in the terminal:
 python Coverage_Prediction_Finetune.py --experiment_config CoveragePrediction.yaml --batch_size <your_batch_size>
 ```
 ## Fine-tuning Data Configuration
-To use custom data for fine-tuning, modify the *cnv_prediction.yml* file:
+To use custom data for fine-tuning, modify the *CoveragePrediction.yaml* file:
 * train_dataset and valid_dataset sections:
 	* targets_path: Path to a text file listing BigWig files for sample coverage. This file should be formatted with:
 		* Column 1: Sample name
