@@ -72,3 +72,6 @@ bash remove_bw.sh dir
 ```
 bash remove_metrics.sh dir
 ``` 
+# Finetuning of model
+
+## Requirements
