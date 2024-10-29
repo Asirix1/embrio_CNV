@@ -32,7 +32,7 @@ For more information see https://github.com/broadinstitute/picard .
 
 1) Create your csv-file as in example CNV_filt.csv with download links to R1 and R2 in *.fastq.gz* or *fq.gz* format (characters *R1* or *R2* in filenames are not obligatory).
 
-(!) There should be the same header as in example CNV_filt.csv.
+(!) There should be the same header as in example CNV_example.csv.
 
 You can add several acts of sequencing or sequencing data from several slots with the same sample name. In this case file pairs will be merged by pipeline.
 
