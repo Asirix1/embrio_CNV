@@ -91,10 +91,7 @@ def main():
     for sample_name, sample_data in struct.items():
         script_path = os.path.join(script_dir, f'{sample_name}.sh')
         with open(script_path, 'w+') as f:
-            if sample_data['count'] not in [1, 2, 4]:
-                print(f"Sample {sample_name} has {sample_data['count']} file pairs. Please ensure there are 1, 2, or 4 file pairs.")
-            else:
-                write_script(f, aligner, data_dir, reference, threads, MAPQ, sample_name, sample_data)
+            write_script(f, aligner, data_dir, reference, threads, MAPQ, sample_name, sample_data)
 
 if __name__ == "__main__":
     main()
