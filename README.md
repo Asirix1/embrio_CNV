@@ -101,7 +101,7 @@ To use custom data for fine-tuning, modify the *cnv_prediction.yml* file:
 	* targets_path: Path to a text file listing BigWig files for sample coverage. This file should be formatted with:
 		* Column 1: Sample name
 		* Column 2: Path to BigWig file for that sample
-* key_file_path: Path to your key file for train and validation keys, formatted as chr, start, end with sequences of 510 tokens. You can randomly select keys from the file ./data/test_for_git_tokens.hdf5 for convenience.
+	* key_file_path: Path to your key file for train and validation keys, formatted as chr, start, end with sequences of 510 tokens. You can randomly select keys from the file ./data/test_for_git_tokens.hdf5 for convenience.
 In CoveragePrediction.yaml, you may also customize:
 
 * save_interval: Model save interval
