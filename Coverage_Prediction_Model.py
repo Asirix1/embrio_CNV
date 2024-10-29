@@ -9,13 +9,13 @@ class BertForCoveragePrediction(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
     def __init__(self, config, 
-                        loss_fct = nn.PoissonNLLLoss(log_input=False, reduction='none'),  
+                        loss_fct = nn.PoissonNLLLoss(log_input=False, reduction='none', full=True),  
                         num_fc_layers = 0,
                         activation = nn.Softplus()):  
         super().__init__(config)
+        loss_fct = nn.PoissonNLLLoss(log_input=False, reduction='none', full=True)    
         self.num_labels = config.num_labels
         self.config = config
-
         self.bert = BertModel(config, add_pooling_layer=False)
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
@@ -29,7 +29,6 @@ class BertForCoveragePrediction(BertPreTrainedModel):
                 self.fc_layers.append(nn.Linear(config.hidden_size, config.hidden_size))
                 self.fc_layers.append(self.ReLU)
                 self.fc_layers.append(self.dropout)
-
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)        
         
         self.activation = activation
@@ -65,29 +64,24 @@ class BertForCoveragePrediction(BertPreTrainedModel):
             return_dict=return_dict
         )
         bins_output = outputs.last_hidden_state[:, 0, :]
-        print(bins_output.shape)
 
- 
-        if hasattr(self,"fc_layers"):
+        if hasattr(self, "fc_layers"):
             for layer in self.fc_layers:
                 bins_output = layer(bins_output)
-        
-        logits = self.classifier(bins_output)
-        pred = self.activation(logits)  
 
+        logits = self.classifier(bins_output)
+        pred = self.activation(logits)    
         loss = None
-        if labels is not None:
+        if labels is not None:  
             if target_weights is not None:
                 loss = self.loss_fct(pred, labels)
                 assert len(loss.shape) > 1, f"loss shape == 1, {loss.shape}. Did you use reduction='None'?"
                 assert loss.shape == target_weights.shape
-                loss = (loss * target_weights) // (target_weights != 0).sum()
+                loss = (loss * target_weights) / (target_weights != 0).sum()
                 loss = loss.mean()
             else:
                 loss = self.loss_fct(pred, labels)
-                loss = loss.mean()  
-        else:
-            raise ValueError("labels are none")
+                loss = loss.mean()
 
         if not return_dict:
             output = (logits,) + outputs[2:]
@@ -99,3 +93,5 @@ class BertForCoveragePrediction(BertPreTrainedModel):
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
+
+    

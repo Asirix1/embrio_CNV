@@ -1,0 +1,2 @@
+embryo6	./data/bigwigs/embryo6_marked_duplicates.bam_md_offset_bin1.bw
+BOC_e1	./data/bigwigs/BOC_e1_marked_duplicates.bam_md_offset_bin1.bw

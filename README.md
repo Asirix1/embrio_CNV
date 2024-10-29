@@ -72,6 +72,43 @@ bash remove_bw.sh dir
 ```
 bash remove_metrics.sh dir
 ``` 
-# Finetuning of model
 
-## Requirements
+# Coverage Prediction Model
+
+This repository contains code for fine-tuning a coverage prediction model using PyTorch and BigWig data. The model and dataset configurations are customizable, with training and validation processes logged to TensorBoard.
+
+## Setup
+
+To set up the environment and install all required packages:
+
+1. Create a Conda environment from the configuration file:
+   ```bash
+   conda env create -f cnv_prediction.yml
+   ```
+## Configuration
+Before training, update the CoveragePrediction.yaml file:
+
+Set HOME_PATH to your working directory path where all training files will be stored.
+And unzip file in *./data/bigwigs/* and *./data/*
+## Training the Model
+To start model fine-tuning, use the following command in the terminal:
+```
+python Coverage_Prediction_Finetune.py --experiment_config CoveragePrediction.yaml --batch_size <your_batch_size>
+```
+## Fine-tuning Data Configuration
+To use custom data for fine-tuning, modify the *cnv_prediction.yml* file:
+* train_dataset and valid_dataset sections:
+* * targets_path: Path to a text file listing BigWig files for sample coverage. This file should be formatted with:
+* * * Column 1: Sample name
+* * * Column 2: Path to BigWig file for that sample
+* key_file_path: Path to your key file for train and validation keys, formatted as chr, start, end with sequences of 510 tokens. You can randomly select keys from the file ./data/test_for_git_tokens.hdf5 for convenience.
+In CoveragePrediction.yaml, you may also customize:
+
+* save_interval: Model save interval
+* valid_interval: Validation interval
+## Model Output
+* Models are saved in the Models directory, with a uniquely named folder created for each fine-tuning session.
+## Monitoring Training Progress
+```
+tensorboard --logdir <model_save_directory> --port <port>
+```

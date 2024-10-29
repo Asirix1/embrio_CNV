@@ -74,8 +74,6 @@ class CoverageDataset(Dataset):
         else:
             self.hash_path = hash_path
 
-        # Load tokenized genome data from hdf5
-        self.load_tokenized_genome()
 
         # Load keys from the key file
         self.load_keys(key_file_path)
@@ -100,8 +98,8 @@ class CoverageDataset(Dataset):
         self.n_tracks = len(self.bigWigPaths.keys())
         self.files_opened = False
 
-    def open_files(self):
-        self.logger.info("Opening bigWig file handlers")
+    def open_files(self): #load_tokenized_genome called after forking
+        self.load_tokenized_genome()
         self.bigWigHandlers = {}
         for k, v in self.bigWigPaths.items():
             try:
@@ -113,11 +111,8 @@ class CoverageDataset(Dataset):
 
     def load_tokenized_genome(self):
         """Loads the tokenized genome data from an hdf5 file."""
-        self.logger.info("Loading tokenized genome data from hdf5 file")
         self.tokenized_genome_data = {}
-        with h5py.File(self.tokenized_genome_path, 'r') as f:
-            for key in f.keys():
-                self.tokenized_genome_data[key] = f[key][...]
+        self.tokenized_genome_data =  h5py.File(self.tokenized_genome_path, 'r')
                 
     def get_hash_path(self):
         m = hashlib.blake2b(digest_size=8)
@@ -136,20 +131,19 @@ class CoverageDataset(Dataset):
     def __getitem__(self, idx):
         if not self.files_opened:
             self.open_files()
-
+        
         # Get the key for the current index
         region_key = self.keys[idx]
         
-        chrom, start, end = region_key[1:-1].split(',')
-
-        input_ids = self.tokenized_genome_data[region_key]
+        chrom, start, end = region_key.split(',')
         
+        input_ids = self.tokenized_genome_data[region_key][...]             
         features = {
             "input_ids": input_ids.astype(np.int32).reshape(1, -1),
             "attention_mask": np.ones(len(input_ids), dtype=bool).reshape(1, -1),
             "token_type_ids": np.zeros(len(input_ids), dtype=np.int32).reshape(1, -1),
         }
-
+        
         # Concatenate with CLS and SEP tokens
         features = concatenate_encodings(
             [
@@ -158,31 +152,31 @@ class CoverageDataset(Dataset):
                 self.service_token_encodings["SEP"],
             ]
         )
-
+        
         # Reducing extra dimension
         features = {k: v[0] for k, v in features.items()}
-
+        
         labels = np.zeros(shape=(self.n_tracks,), dtype=np.float32)
         bins_mask = np.ones(shape=(self.sample_length + self.N_SERVICE_TOKENS,), dtype=bool)
-
+        
         bins_mask[0:self.n_context_tokens + 1] = 0
         bins_mask[-1 - self.n_context_tokens:] = 0
         assert sum(bins_mask) == self.n_target_tokens
-
+        
         for ind, (k, v) in enumerate(self.bigWigHandlers.items()):
             try:
-                values = v.values(str(chrom[1:-1]), int(start), int(end), numpy=True)
+                values = v.values(str(chrom), int(start), int(end), numpy=True)
                 labels[ind] = np.sum(values)
             except RuntimeError as e:
                 print(idx, chrom, int(start), int(end))
                 raise e
-
+        
         if self.transform_targets is not None:
             features["labels"] = self.transform_targets(labels)
         else:
             features["labels"] = labels
         features["bins_mask"] = bins_mask
-
+        
         return features
 
 def worker_init_fn(worker_id):

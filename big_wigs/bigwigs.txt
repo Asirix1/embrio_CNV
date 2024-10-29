@@ -1,2 +1,0 @@
-embryo6	/mnt/nfs_dna/popov/CNV_prediction/big_wigs/embryo6_marked_duplicates.bam_md_offset_bin1.bw
-BOC_e1	/mnt/nfs_dna/popov/CNV_prediction/big_wigs/BOC_e1_marked_duplicates.bam_md_offset_bin1.bw
