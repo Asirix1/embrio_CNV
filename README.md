@@ -1,6 +1,6 @@
 # embryo_CNV
 
-# FASTQ to BigWig pipeline
+# FASTQ to BigWig pipeline (data preprocessing)
 
 ## Requirements
 1) Python >= 3.10.14 with Pandas and OS
@@ -41,6 +41,7 @@ You can add several acts of sequencing or sequencing data from several slots wit
 3) Create a work directory (work_dir).
 4) Run
 ```
+cd embrio_CNV/data_preprocessing
 python3 python_script_writer.py -csv file_with_download_links.csv -d work_dir -bwp bw_pipeline_picard_md_of.sh -t threads -g reference_genome.fa -q required_MAPQ
 ```
 5) Look output shell-scripts in the directory work_dir/scripts. There should be one script to each sample.
