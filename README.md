@@ -38,11 +38,13 @@ For more information see https://github.com/broadinstitute/picard .
 
 You can add several acts of sequencing or sequencing data from several slots with the same sample name. In this case file pairs will be merged by pipeline.
 
+For test run use CNV_example.csv.
+
 3) Create a work directory (work_dir).
 4) Run
 ```
 cd embrio_CNV/data_preprocessing
-python3 python_script_writer.py -csv file_with_download_links.csv -d work_dir -bwp bw_pipeline_picard_md_of.sh -t threads -g reference_genome.fa -q required_MAPQ
+python3 python_script_writer.py -csv CNV_example.csv -d work_dir -bwp bw_pipeline_picard_md_of.sh -t threads -g reference_genome.fa -q required_MAPQ
 ```
 5) Look output shell-scripts in the directory work_dir/scripts. There should be one script to each sample.
 6) You can run scripts separately:
