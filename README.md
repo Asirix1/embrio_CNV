@@ -89,7 +89,7 @@ To set up the environment and install all required packages:
 Before training, update the CoveragePrediction.yaml file:
 
 Set HOME_PATH to your working directory path where all training files will be stored.
-And unzip file in *./data/bigwigs/* and *./data/*
+And unzip file in */data/bigwigs/* and */data/*
 ## Training the Model
 To start model fine-tuning, use the following command in the terminal:
 ```
