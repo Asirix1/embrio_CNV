@@ -113,3 +113,53 @@ In *CoveragePrediction.yaml*, you may also customize:
 ```
 tensorboard --logdir <model_save_directory> --port <port>
 ```
+# Coverage Prediction Model by predictions_by_the_model.py
+
+This script runs a coverage prediction model using a pre-trained transformer model. It loads input data from an HDF5 file and processes it in batches to generate predictions.
+
+
+## Usage
+
+Run the script predictions_by_the_model.py with required parameters:
+
+```bash
+python predictions_by_the_model.py \
+  --keys_path /path/to/sorted_keys.csv \
+  --hdf5_path /path/to/combined_510_tokens.hdf5 \
+  --experiment_config_path /path/to/CoveragePrediction.yaml \
+  --config_path /path/to/config.json \
+  --checkpoint_path /path/to/model_best.pth \
+  --output_file results.tsv \
+  --batch_size 512 \
+  --labels 10
+```
+
+## Arguments
+
+- `--keys_path`: Path to the CSV file containing the keys.
+- `--hdf5_path`: Path to the HDF5 file with tokenized genome data.
+- `--experiment_config_path`: Path to the YAML configuration file for the experiment.
+- `--config_path`: Path to the JSON configuration file for the model.
+- `--checkpoint_path`: Path to the model checkpoint file.
+- `--output_file`: Output file name for storing predictions.
+- `--batch_size`: Number of samples to process at once (default: 512).
+- `--labels`: Number of labels (samples) for model prediction (default: 10).
+
+## Output
+
+The script produces:
+
+- A TSV file (`output_file`) with predictions in the following format:
+  ```
+  Chromosome  Start  End  Sample_1  Sample_2  ...
+  chr1        1000   2000  0.12          0.45         ...
+  ```
+
+## Implementation Details
+
+- Loads the model using `transformers.AutoConfig`.
+- Uses `torch.load()` to restore weights from the checkpoint.
+- Processes data in batches for efficiency.
+- Uses `torch.no_grad()` for inference to reduce memory usage.
+- Handles GPU acceleration automatically.
+
