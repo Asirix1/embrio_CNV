@@ -28,7 +28,7 @@ python3 universal_benchmarker.py -res predictions.csv -ref all_rearrangeements_i
   At current stage of our instrument testing we use the follow list (46 embryos):
 
 ```
-11425_K Zap_e2 Kul2_K Kond4_K YAK_e4 Boc_K4 Kov2_e HAN_e5 XAH_e13 Fuks1_K MAD_K3 Mat2_K Pash_K2 BOC_K1 Kond5_K Kaz3_K BTR_e3 Kira1_K1 Zap_e3 IlI_K3 Ore1_K BOC_e1 CHR_K1 Vla1_e Pash_e3 CHR_e1 Boc_e4 embryo6 Zap_K2 Vla2_e Kra1_e Mog1_e XAH_K13 Mel6_K Gri2_e Pash_K3 Kul_K Shen3_K Sheg1_e Kur3_e Kra_e HAN_K5 Aks_K Sach2_K MAD_e3 Say3_K 
+embryo6 BOC_e1 CHR_K1 CHR_e1 IlI_K3 Pash_e3 XAH_e13 YAK_e4 Kra_e BTR_e3 
 ```
   
   -o OUTPUT_DIR, --output_dir OUTPUT_DIR
