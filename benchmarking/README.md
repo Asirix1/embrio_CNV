@@ -1,4 +1,7 @@
-# FASTQ to BigWig pipeline
+# Benchmarking
+
+Benchmarking logik:
+https://docs.google.com/document/d/1e5D6fSlioPEsjZhHv1Cpmvyu5Mxnei5OkHJSsvbRFSc/edit?tab=t.0
 
 ## Requirements
 Python >= 3.10.14 with pandas, matplotlib, seaborn, plotly, statistics and os
