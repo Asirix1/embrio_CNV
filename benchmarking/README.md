@@ -22,8 +22,8 @@ python3 universal_benchmarker.py -res predictions.csv -ref all_rearrangeements_i
   Path to the reference CNV file.
   This file is avalible by the follow link: https://genedev.bionet.nsc.ru/ftp/by_Project/LowInHIC_for_BCA/GENA-CNV/info/all_rearrangeements_in_bp_21.01.csv
   
-  -se SELECTED_EMBRYOS [SELECTED_EMBRYOS ...], --selected_embryos SELECTED_EMBRYOS [SELECTED_EMBRYOS ...]
-  Names of selected embryos
+  -se SELECTED_EMBRYOS , --selected_embryos SELECTED_EMBRYOS
+  Names of selected embryos.
   
   At current stage of our instrument testing we use the follow list ():
 
@@ -32,7 +32,7 @@ python3 universal_benchmarker.py -res predictions.csv -ref all_rearrangeements_i
 ```
   
   -o OUTPUT_DIR, --output_dir OUTPUT_DIR
-  Path to the output
+  Path to the output.
   As default files will be saved in folder *output* at the directory the script is located.
 
 
