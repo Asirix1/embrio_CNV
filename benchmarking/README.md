@@ -25,7 +25,7 @@ python3 universal_benchmarker.py -res predictions.csv -ref all_rearrangeements_i
   -se SELECTED_EMBRYOS , --selected_embryos SELECTED_EMBRYOS
   Names of selected embryos.
   
-  At current stage of our instrument testing we use the follow list (46 embryos):
+  At current stage of our instrument testing we use the follow list (10 embryos):
 
 ```
 embryo6 BOC_e1 CHR_K1 CHR_e1 IlI_K3 Pash_e3 XAH_e13 YAK_e4 Kra_e BTR_e3 
