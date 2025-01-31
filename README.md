@@ -113,7 +113,7 @@ In *CoveragePrediction.yaml*, you may also customize:
 ```
 tensorboard --logdir <model_save_directory> --port <port>
 ```
-# Coverage Prediction Model by predictions_by_the_model.py
+# Getting Coverage Prediction by predictions_by_the_model.py
 
 This script runs a coverage prediction model using a pre-trained transformer model. It loads input data from an HDF5 file and processes it in batches to generate predictions.
 
