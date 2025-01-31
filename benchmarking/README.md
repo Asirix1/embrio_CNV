@@ -19,8 +19,8 @@ python3 universal_benchmarker.py -res predictions.csv -ref all_rearrangeements_i
   Path to your file for analyses (your CNV-caller results).
                         
   -ref REFERENCE_CNV_PATH, --reference_CNV_path REFERENCE_CNV_PATH
-  Path to the reference CNV file.
-  This file is avalible by the follow link: https://genedev.bionet.nsc.ru/ftp/by_Project/LowInHIC_for_BCA/GENA-CNV/info/all_rearrangeements_in_bp_21.01.csv
+  Path to the reference CNV file. (all_rearrangeements_in_bp_21.01.csv)
+ 
   
   -se SELECTED_EMBRYOS , --selected_embryos SELECTED_EMBRYOS
   Names of selected embryos.
