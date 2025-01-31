@@ -188,14 +188,14 @@ Prepare the following input files:
 
 1. Sample File:
 A tab-separated text file where each line contains a sample name and the path to its bigWig file.
-Example (samples.txt):
+Example (`samples.txt`):
 ```bash
 sample1	/path/to/sample1.bw
 sample2	/path/to/sample2.bw
 ```
 2. Regions File:
 A CSV file without header, where each line specifies a genomic region with three columns: chrom, start, end.
-Example (regions.csv):
+Example (`regions.csv`):
 ```bash
 chr1,10000,10500
 chr2,20000,20500
@@ -207,9 +207,9 @@ python real_coverage_count.py --samples samples.txt \
 --output coverage_output.csv
 ```
 
-- --samples: Path to the sample file containing sample names and bigWig file paths.
-- --regions: Path to the CSV file with genomic regions.
-- --output: Desired output CSV file name.
+- `--samples`: Path to the sample file containing sample names and bigWig file paths.
+- `--regions`: Path to the CSV file with genomic regions.
+- `--output`: Desired output CSV file name.
 
 
 # HMM Segmentator - hmm_segmentator.py
@@ -232,9 +232,9 @@ This code implements a Hidden Markov Model (HMM)-based segmentation tool for gen
 ## Usage
 Run the script from the command line with the following parameters:
 
-- --prediction_coverage: Path to the prediction coverage file (TSV format) - produced by predictions_by_the_model.py.
-- --real_coverage: Path to the real coverage file (CSV format) - produced by real_coverage_count.py.
-- --output_file: Path to the output file where all aggregated predictions will be saved (TSV format).
+- `--prediction_coverage`: Path to the prediction coverage file (TSV format) - produced by predictions_by_the_model.py.
+- `--real_coverage`: Path to the real coverage file (CSV format) - produced by real_coverage_count.py.
+- `--output_file`: Path to the output file where all aggregated predictions will be saved (TSV format).
 Example command:
 ```bash
 python hmm_segmentator.py --prediction_coverage [path/to/coverage_predictions.tsv] \
