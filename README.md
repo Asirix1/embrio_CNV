@@ -1,4 +1,4 @@
-# embrio_CNV
+# Embryo CNV detection
 
 # FASTQ to BigWig pipeline (data preprocessing)
 
