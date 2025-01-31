@@ -163,3 +163,40 @@ The script produces:
 - Uses `torch.no_grad()` for inference to reduce memory usage.
 - Handles GPU acceleration automatically.
 
+# HMM Segmentator - hmm_segmentator.py
+
+This code implements a Hidden Markov Model (HMM)-based segmentation tool for genomic coverage data. The tool processes both predicted and real coverage data, computes differences, filters regions based on a provided BED file, and trains an HMM with fixed transitions across different dispersion thresholds. The resulting segmentation predictions for each threshold are aggregated and saved into a single output file.
+
+## Features
+
+- **Data Preprocessing:**  
+  Merges predicted and real coverage data, calculates a difference metric, and applies filtering based on excluded regions provided in a BED file (e.g., `T2T.excluderanges.bed`).
+
+- **Row Combination:**  
+  Combines rows into groups (e.g., every 50 rows) and computes mean values for subsequent analysis.
+
+- **Visualization:**  
+  Generates scatter plots to visualize normalized values alongside the predicted states. The plots are created and then closed immediately to prevent display overload.
+
+- **Aggregation of Predictions:**  
+  Aggregates segmentation predictions from multiple dispersion thresholds into one final output file.
+## Usage
+Run the script from the command line with the following parameters:
+
+- --prediction_coverage: Path to the prediction coverage file (TSV format) - produced by predictions_by_the_model.py.
+- --real_coverage: Path to the real coverage file (CSV format) - produced by real_coverage_count.py.
+- --output_file: Path to the output file where all aggregated predictions will be saved (TSV format).
+Example command:
+```bash
+python hmm_segmentator.py --prediction_coverage [path/to/coverage_predictions.tsv] \
+--real_coverage [path/to/real_coverage.csv] \
+--output_file [path/to/output_predictions.tsv]
+```
+## Output
+The final output is a TSV file containing aggregated segmentation predictions. Each row includes:
+
+- Column: Base name of the processed prediction column.
+- Chromosome: Chromosome identifier.
+- Start/End: Start and end positions of the aggregated segment.
+- Class: Predicted class (1 - depletion, 3 - duplication).
+- Threshold: The dispersion threshold (disp value) used during HMM prediction.
