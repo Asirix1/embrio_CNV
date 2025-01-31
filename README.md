@@ -163,6 +163,55 @@ The script produces:
 - Uses `torch.no_grad()` for inference to reduce memory usage.
 - Handles GPU acceleration automatically.
 
+
+# BigWig Real Coverage Calculator - real_coverage_count.py
+
+This Python tool computes the total coverage for each sample over specified genomic regions using bigWig files. It reads sample information from a text file, regions from a CSV file, calculates the coverage for each region using numpy operations, and outputs the results as a CSV file. A progress bar (via `tqdm`) is used to track the computation progress.
+
+## Features
+
+- **Sample Loading:**  
+  Reads sample names and corresponding bigWig file paths from a tab-separated file.
+
+- **Region Loading:**  
+  Loads genomic regions (chromosome, start, end) from a CSV file.
+
+- **Coverage Calculation:**  
+  For each region, computes the sum of coverage for every sample using bigWig files.  
+  If an error occurs while reading a sample for a region, it records a coverage value of 0.
+
+
+- **Output:**  
+  Generates a CSV file with columns: `chrom`, `start`, `end`, followed by one column per sample containing the total coverage in that region.
+## Usage
+Prepare the following input files:
+
+1. Sample File:
+A tab-separated text file where each line contains a sample name and the path to its bigWig file.
+Example (samples.txt):
+```bash
+sample1	/path/to/sample1.bw
+sample2	/path/to/sample2.bw
+```
+2. Regions File:
+A CSV file without header, where each line specifies a genomic region with three columns: chrom, start, end.
+Example (regions.csv):
+```bash
+chr1,10000,10500
+chr2,20000,20500
+```
+Run the script from the command line:
+```bash
+python real_coverage_count.py --samples samples.txt \
+--regions regions.csv \
+--output coverage_output.csv
+```
+
+- --samples: Path to the sample file containing sample names and bigWig file paths.
+- --regions: Path to the CSV file with genomic regions.
+- --output: Desired output CSV file name.
+
+
 # HMM Segmentator - hmm_segmentator.py
 
 This code implements a Hidden Markov Model (HMM)-based segmentation tool for genomic coverage data. The tool processes both predicted and real coverage data, computes differences, filters regions based on a provided BED file, and trains an HMM with fixed transitions across different dispersion thresholds. The resulting segmentation predictions for each threshold are aggregated and saved into a single output file.
