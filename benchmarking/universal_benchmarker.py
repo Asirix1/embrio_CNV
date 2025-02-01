@@ -104,6 +104,7 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
     tp_values_list_no_mos=[]
     fp_values_list_no_mos=[]
+    fn_values_list_no_mos=[]
     recall_list_no_mos=[]
 
     precision_list_no_mos=[]
@@ -114,10 +115,12 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
     precision_out_list_no_mos=[]
     F1_list_no_mos=[]
     F1_out_list_no_mos=[]
+    fn_out_values_list_no_mos=[]
 
 
     tp_values_list_with_mos=[]
     fp_values_list_with_mos=[]
+    fn_values_list_with_mos=[]
     recall_list_with_mos=[]
 
     precision_list_with_mos=[]
@@ -128,6 +131,7 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
     precision_out_list_with_mos=[]
     F1_list_with_mos=[]
     F1_out_list_with_mos=[]
+    fn_out_values_list_with_mos=[]
 
 
 
@@ -159,7 +163,7 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
         table={"embryo": [], 'TP': [], 'FP': [], 'TP': [], 'FN': [], 'Recall': [], 'Precision': [], 'IDs':[], 'Ratio_list':[], 'contr': [], 'preIDs':[]}
         for embryo in used_embryos_in_comp:
             result_main_filt=result.query('`SV_chrom`!="X" and `SV_chrom`!="Y"').query('abs(`SV_length`)>=10**7').query(f"`Sample (E-embryo, K-biopsy)`=='{embryo}'").query(f"`Parameter`=={quality}").reset_index(drop=True)
-            #Detected rearrangements for current embryo. Only rearrangements detected on autosoms longer then 10**7 bp are used. query(quality) sets the treshold level
+            #Detected rearrangements for current embryo. Only rearrangements detected on autosoms longer then 10**7 bp are used. query(quality) sets the Threshold level
             embryo_CNV=control_CNV_euplodised.query(f'`Sample (E-embryo, K-biopsy)`=="{embryo}"').reset_index(drop=True)
             #All reference rearrangements for current embryo.
             no_mos_embryo_CNV=embryo_CNV.query('`Mosaicism_main`==1')
@@ -230,7 +234,7 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
 
 
-            #Filling the table for current treshold level.
+            #Filling the table for current threshold level.
             table['embryo'].append(embryo)
             table['TP'].append(TP)
             table['FP'].append(FP)
@@ -259,11 +263,13 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
 
         fp_values_list_no_mos.append(sum(metrics['FP']))
-        #writing FP for current treshold level for ROC-like graph
+        #writing FP for current threshold level for ROC-like graph
 
         tp_values_list_no_mos.append(sum(metrics['TP']))
-        #writing TP for current treshold level for ROC-like graph
+        #writing TP for current threshold level for ROC-like graph
 
+        fn_values_list_no_mos.append(sum(metrics['FN']))
+        #writing FN for current threshold level for ROC-like graph
 
         recall=sum(metrics['TP'])/(sum(metrics['TP'])+sum(metrics['FN']))
         #calculating CNV-level recall value for current threshhold level
@@ -304,10 +310,10 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
         #writing CNV-level F1 value for current threshhold level
 
         tp_out_values_list_no_mos.append(TP_out)
-        #writing embryo-levels TP for current treshold level for ROC-like graph
+        #writing embryo-levels TP for current threshold level for ROC-like graph
 
         fp_out_values_list_no_mos.append(FP_out)
-        #writing embryo-levels FP for current treshold level for ROC-like graph
+        #writing embryo-levels FP for current threshold level for ROC-like graph
         
         recall_out_list_no_mos.append(recall_out)
         #wrinting embryo-level recall value for current threshhold level
@@ -320,6 +326,11 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
         F1_out_list_no_mos.append(F1_out)   
         #writing embryo-level F1 value for current threshhold level
+
+        fn_out_values_list_no_mos.append(FN_out)
+        #writing embryo-levels FN for current Threshold level for ROC-like graph
+
+        
 
 
 
@@ -361,9 +372,9 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
 
     #parameters with best F1 rate
-    score={"Recall": [recall_list_no_mos[F1_list_no_mos.index(max(F1_list_no_mos))]], "Precision": [precision_list_no_mos[F1_list_no_mos.index(max(F1_list_no_mos))]], "F1": [max(F1_list_no_mos)]}
+    score={"TP": [tp_values_list_no_mos[F1_list_no_mos.index(max(F1_list_no_mos))]], "FP": [fp_values_list_no_mos[F1_list_no_mos.index(max(F1_list_no_mos))]],  "FN": [fn_values_list_no_mos[F1_list_no_mos.index(max(F1_list_no_mos))]], "Recall": [recall_list_no_mos[F1_list_no_mos.index(max(F1_list_no_mos))]], "Precision": [precision_list_no_mos[F1_list_no_mos.index(max(F1_list_no_mos))]], "F1": [max(F1_list_no_mos)], "Threshold": [q_label[F1_list_no_mos.index(max(F1_list_no_mos))]]}
     sc_t=pd.DataFrame(data=score)
-    sc_t.to_csv(f"{output_dir}/no_mos_rate_CNV.csv", sep="\t")
+    sc_t.to_csv(f"{output_dir}/no_mos_rate_CNV.csv", index=False)
     sc_t
 
 
@@ -491,9 +502,9 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
 
     #parameters with best F1 rate
-    score_out={"Recall": [recall_out_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "Precision": [precision_out_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "F1": [max(F1_out_list_no_mos)]}
+    score_out={"TP": [tp_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "FP": [fp_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "FN": [fn_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "Recall": [recall_out_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "Precision": [precision_out_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "F1": [max(F1_out_list_no_mos)], "Threshold": [q_label[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]]}
     sc_t_out=pd.DataFrame(data=score_out)
-    sc_t_out.to_csv(f'{output_dir}/no_mos_rate_embryo.csv', sep="\t")
+    sc_t_out.to_csv(f'{output_dir}/no_mos_rate_embryo.csv', index=False)
     sc_t_out
 
 
@@ -643,7 +654,7 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
         table={"embryo": [], 'TP': [], 'FP': [], 'TP': [], 'FN': [], 'Recall': [], 'Precision': [], 'IDs':[], 'Ratio_list':[], 'contr': [], 'preIDs':[]}
         for embryo in used_embryos_in_comp:
             result_main_filt=result.query('`SV_chrom`!="X" and `SV_chrom`!="Y"').query('abs(`SV_length`)>=10**7').query(f"`Sample (E-embryo, K-biopsy)`=='{embryo}'").query(f"`Parameter`=={quality}").reset_index(drop=True)
-            #Detected rearrangements for current embryo. Only rearrangements detected on autosoms longer then 10**7 bp are used. query(quality) sets the treshold level
+            #Detected rearrangements for current embryo. Only rearrangements detected on autosoms longer then 10**7 bp are used. query(quality) sets the Threshold level
             embryo_CNV=control_CNV.query(f'`Sample (E-embryo, K-biopsy)`=="{embryo}"').reset_index(drop=True)
             #All reference rearrangements for current embryo.
             TP=0
@@ -668,20 +679,15 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
                         if str(embryo_CNV['Region_in_bp'][contr_n])!='nan' and str(embryo_CNV['Region_in_bp'][contr_n])!='NaT':
                             #If it is not realy (without mosaic CNV) Euploid embryo.
 
-                            if embryo_CNV['Mosaicism_main'][contr_n]<1:
-                                if (float(result_main_filt['SV_start'][re_n])>=(float(embryo_CNV['CNV_start'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_start'][re_n])<=(float(embryo_CNV['CNV_start'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and (float(result_main_filt['SV_end'][re_n])>=(float(embryo_CNV['CNV_end'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_end'][re_n])<=(float(embryo_CNV['CNV_end'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and int(result_main_filt['SV_chrom'][re_n])==int(embryo_CNV['Chromosome'][contr_n]) and (float(embryo_CNV['Length'][contr_n])*0.5)<abs(float(result_main_filt['SV_length'][re_n])):
-                                    P-=1
-                                    
-                            elif embryo_CNV['Mosaicism_main'][contr_n]==1:
-                                if TP_rate==0 and (float(result_main_filt['SV_start'][re_n])>=(float(embryo_CNV['CNV_start'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_start'][re_n])<=(float(embryo_CNV['CNV_start'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and (float(result_main_filt['SV_end'][re_n])>=(float(embryo_CNV['CNV_end'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_end'][re_n])<=(float(embryo_CNV['CNV_end'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and int(result_main_filt['SV_chrom'][re_n])==int(embryo_CNV['Chromosome'][contr_n]) and (float(embryo_CNV['Length'][contr_n])*0.5)<abs(float(result_main_filt['SV_length'][re_n])):
-                                    TP+=1
-                                    TP_rate=1
-                                    #there should be only one TP per reference rearrangement
+                            if TP_rate==0 and (float(result_main_filt['SV_start'][re_n])>=(float(embryo_CNV['CNV_start'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_start'][re_n])<=(float(embryo_CNV['CNV_start'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and (float(result_main_filt['SV_end'][re_n])>=(float(embryo_CNV['CNV_end'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_end'][re_n])<=(float(embryo_CNV['CNV_end'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and int(result_main_filt['SV_chrom'][re_n])==int(embryo_CNV['Chromosome'][contr_n]) and (float(embryo_CNV['Length'][contr_n])*0.5)<abs(float(result_main_filt['SV_length'][re_n])):
+                                TP+=1
+                                TP_rate=1
+                                #there should be only one TP per reference rearrangement
 
-                                    ID=f'{result_main_filt["SV_chrom"][re_n]}_{result_main_filt["SV_length"][re_n]}'
-                                    IDs.append(ID)
-                                    ratio.append(float(result_main_filt['SV_length'][re_n])/float(embryo_CNV['Length'][contr_n]))
-                                    #How shorter or longer then the reference rearrangemet is the detected rearrangement.
+                                ID=f'{result_main_filt["SV_chrom"][re_n]}_{result_main_filt["SV_length"][re_n]}'
+                                IDs.append(ID)
+                                ratio.append(float(result_main_filt['SV_length'][re_n])/float(embryo_CNV['Length'][contr_n]))
+                                #How shorter or longer then the reference rearrangemet is the detected rearrangement.
 
                 if TP!=0:
                     ratio_mean=statistics.mean(ratio)
@@ -713,7 +719,7 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
 
 
-            #Filling the table for current treshold level.
+            #Filling the table for current threshold level.
             table['embryo'].append(embryo)
             table['TP'].append(TP)
             table['FP'].append(FP)
@@ -742,11 +748,13 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
 
         fp_values_list_with_mos.append(sum(metrics['FP']))
-        #writing FP for current treshold level for ROC-like graph
+        #writing FP for current threshold level for ROC-like graph
 
         tp_values_list_with_mos.append(sum(metrics['TP']))
-        #writing TP for current treshold level for ROC-like graph
+        #writing TP for current threshold level for ROC-like graph
 
+        fn_values_list_with_mos.append(sum(metrics['FN']))
+        #writing FN for current threshold level for ROC-like graph
 
         recall=sum(metrics['TP'])/(sum(metrics['TP'])+sum(metrics['FN']))
         #calculating CNV-level recall value for current threshhold level
@@ -770,6 +778,8 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
         FN_out=len(metrics.query('`contr`!="Euploid embryo" and (`FP`==0 and `TP`==0)'))
         #calculating embryo-level FN for current threshhold level
 
+        
+
 
         if TP_out!=0:
             recall_out=TP_out/(TP_out+FN_out)
@@ -787,10 +797,10 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
         #writing CNV-level F1 value for current threshhold level
 
         tp_out_values_list_with_mos.append(TP_out)
-        #writing embryo-levels TP for current treshold level for ROC-like graph
+        #writing embryo-levels TP for current threshold level for ROC-like graph
 
         fp_out_values_list_with_mos.append(FP_out)
-        #writing embryo-levels FP for current treshold level for ROC-like graph
+        #writing embryo-levels FP for current threshold level for ROC-like graph
         
         recall_out_list_with_mos.append(recall_out)
         #wrinting embryo-level recall value for current threshhold level
@@ -803,6 +813,10 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
         F1_out_list_with_mos.append(F1_out)   
         #writing embryo-level F1 value for current threshhold level
+
+        fn_out_values_list_with_mos.append(FN_out)
+        #writing embryo-levels FN for current threshold level for ROC-like graph
+
 
 
 
@@ -846,9 +860,9 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
 
     #parameters with best F1 rate
-    score={"Recall": [recall_list_with_mos[F1_list_with_mos.index(max(F1_list_with_mos))]], "Precision": [precision_list_with_mos[F1_list_with_mos.index(max(F1_list_with_mos))]], "F1": [max(F1_list_with_mos)]}
+    score={"TP": [tp_values_list_with_mos[F1_list_with_mos.index(max(F1_list_with_mos))]], "FP": [fp_values_list_with_mos[F1_list_with_mos.index(max(F1_list_with_mos))]], "FN": [fn_values_list_with_mos[F1_list_with_mos.index(max(F1_list_with_mos))]], "Recall": [recall_list_with_mos[F1_list_with_mos.index(max(F1_list_with_mos))]], "Precision": [precision_list_with_mos[F1_list_with_mos.index(max(F1_list_with_mos))]], "F1": [max(F1_list_with_mos)], "Threshold": [q_label[F1_list_with_mos.index(max(F1_list_with_mos))]]}
     sc_t=pd.DataFrame(data=score)
-    sc_t.to_csv(f"{output_dir}/with_mos_rate_CNV.csv", sep="\t")
+    sc_t.to_csv(f"{output_dir}/with_mos_rate_CNV.csv", index=False)
     sc_t
 
 
@@ -976,9 +990,9 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
 
     #parameters with best F1 rate
-    score_out={"Recall": [recall_out_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "Precision": [precision_out_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "F1": [max(F1_out_list_with_mos)]}
+    score_out={"TP": [tp_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "FP": [fp_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "FN": [fn_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "Recall": [recall_out_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "Precision": [precision_out_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "F1": [max(F1_out_list_with_mos)], "Threshold": [q_label[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]]}
     sc_t_out=pd.DataFrame(data=score_out)
-    sc_t_out.to_csv(f"{output_dir}/with_mos_rate_embryo.csv", sep="\t")
+    sc_t_out.to_csv(f"{output_dir}/with_mos_rate_embryo.csv", index=False)
     sc_t_out
 
 
