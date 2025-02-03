@@ -42,32 +42,6 @@ def combine_rows_and_sum(df, size):
     return pd.DataFrame(grouped)
 
 
-def calculate_and_save_statistics(merged_df, updated_df):
-    """Calculate and save statistics."""
-    stats_data = []
-    class_means = {}
-    class_variances = {}
-
-    for col in merged_df.columns[3:]:
-        unique_classes = updated_df[col].unique()
-        for class_label in unique_classes:
-            class_data = merged_df[updated_df[col] == class_label][col]
-            mean_value = class_data.mean()
-            var_value = class_data.var()
-            stats_data.append({
-                'Column': col,
-                'Class': class_label,
-                'Mean': mean_value,
-                'Variance': var_value,
-            })
-            if class_label not in class_means:
-                class_means[class_label] = []
-                class_variances[class_label] = []
-            class_means[class_label].append(mean_value)
-            class_variances[class_label].append(var_value)
-    return class_means, class_variances
-
-
 def normalize(values):
     """Normalize values."""
     mean_val = np.mean(values)
@@ -75,48 +49,47 @@ def normalize(values):
     return (values - mean_val) / std_val if std_val > 0 else values
 
 
-def train_hmm_with_fixed_transitions(result_df, updated_df, train_samples, disp):
-    """Train HMM with fixed transitions."""
-    combined_observations = []
-    combined_labels = []
+def create_hmm_with_fixed_transitions(disp):
+    """Create HMM with fixed transitions using from_matrix."""
+    # Define the states and their emission distributions
+    state_1 = State(NormalDistribution(0.5, disp), name="1")
+    state_2 = State(NormalDistribution(1, disp), name="2")
+    state_3 = State(NormalDistribution(1.5, disp), name="3")
+
+    # Define the fixed transition matrix
+    transition_matrix = np.array([
+        [9.95438464e-01, 4.56153588e-03, 0.00000000e+00],
+        [7.10088511e-05, 9.99791875e-01, 1.37115763e-04],
+        [0.00000000e+00, 3.37748155e-03, 9.96622518e-01]
+    ])
+
+    # Define start and end probabilities (equal for all states)
+    start_probabilities = np.array([1/3, 1/3, 1/3])
+    end_probabilities = np.array([1/3, 1/3, 1/3])
+
+    # Create the HMM using from_matrix
+    model = HiddenMarkovModel.from_matrix(
+        transition_matrix,
+        [state_1.distribution, state_2.distribution, state_3.distribution],
+        start_probabilities,
+        end_probabilities
+    )
+
+    # Bake the model to finalize it
+    model.bake()
+    
+
+    return model
+
+
+def predict_states_with_fixed_hmm(result_df, disp):
+    """Predict states using the fixed HMM."""
     predicted_states = {}
 
-    for col in train_samples:
-        observations = result_df[col].values.flatten()
-        labels = updated_df[col].values
-        combined_observations.extend(observations)
-        combined_labels.extend(labels)
+    # Create the HMM with fixed transitions
+    model = create_hmm_with_fixed_transitions(disp)
 
-    unique_states = np.unique(combined_labels)
-    mean_classes, mean_var = calculate_and_save_statistics(result_df, updated_df)
-    mean_var_merged = np.concatenate(list(mean_var.values()))
-
-    state_1 = State(NormalDistribution(1, disp), name="2")
-    state_2 = State(NormalDistribution(1.5, disp), name="3")
-    state_3 = State(NormalDistribution(0.6, disp), name="1")
-
-    model = HiddenMarkovModel()
-    model.add_states([state_1, state_2, state_3])
-    model.add_transition(model.start, state_1, 1/3)
-    model.add_transition(model.start, state_2, 1/3)
-    model.add_transition(model.start, state_3, 1/3)
-
-    genome_points = len(result_df)
-    model.add_transition(state_1, state_1, 1 - 4/genome_points)
-    model.add_transition(state_1, state_2, 2/genome_points)
-    model.add_transition(state_1, state_3, 2/genome_points)
-    model.add_transition(state_2, state_2, 1 - 4/genome_points)
-    model.add_transition(state_2, state_1, 2/genome_points)
-    model.add_transition(state_2, state_3, 0)
-    model.add_transition(state_3, state_3, 1 - 4/genome_points)
-    model.add_transition(state_3, state_1, 2/genome_points)
-    model.add_transition(state_3, state_2, 0)
-
-    model.bake()
-    model.freeze_distributions()
-    labels_list = np.array([str(x) for x in combined_labels])
-    model.fit(sequences=[combined_observations], algorithm='baum-welch')
-
+    # Predict states for each column (skip the first 3 columns: Chromosome, Start, End)
     for col in result_df.columns[3:]:
         observations = result_df[col].values.flatten()
         predicted_states[col] = np.array(model.predict(observations))
@@ -208,18 +181,16 @@ def main(prediction_coverage, real_coverage, output_file):
     exclude_regions = load_bed_regions("T2T.excluderanges.bed")
     filtered_regions = exclude_regions
 
-
     tqdm.pandas(desc="Filtering regions")
     merged_df = merged_df[~merged_df.progress_apply(lambda row: is_in_filtered_regions(row, filtered_regions), axis=1)]
 
     result_df = combine_rows_and_sum(merged_df, 50)
     result_df_filtered = result_df[~result_df['Chromosome'].isin(['chrX', 'chrY'])]
 
-    train_samples = ['BTR_e3_diff']
     all_predictions = []
     
-    for disp in tqdm(np.arange(0.2, 2, 0.2), desc="HMM training for different thresholds"):
-        predicted_states = train_hmm_with_fixed_transitions(result_df_filtered, result_df_filtered, train_samples, disp)
+    for disp in tqdm(np.arange(0.2, 2, 0.2), desc="HMM prediction for different thresholds"):
+        predicted_states = predict_states_with_fixed_hmm(result_df_filtered, disp)
         plot_results(result_df_filtered, predicted_states)
         predictions_df = get_predictions_df(result_df_filtered, predicted_states, disp)
         if not predictions_df.empty:
