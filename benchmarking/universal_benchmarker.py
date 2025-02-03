@@ -99,6 +99,7 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
 
 
     quality_list=list(set([i for i in result['Parameter']]))
+    quality_list.sort()
 
     q_label=[round(i, 1) for i in quality_list]
 
@@ -1105,4 +1106,3 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output_dir', default=f'{os.path.dirname(os.path.abspath(__file__))}/output', type=str, required=False, help='Path to the output')
     args = parser.parse_args()
     main(args.result_path, args.reference_CNV_path, args.selected_embryos, args.output_dir)
-
