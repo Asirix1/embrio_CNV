@@ -133,7 +133,7 @@ bash
     --keys_path path/to/keys.csv \
     --hdf5_path path/to/data.hdf5 \
     --experiment_config_path path/to/experiment_config.yaml \
-	--labels num_samples \
+    --labels num_samples \
     --config_path path/to/model_config.json \
     --checkpoint_path path/to/checkpoint.pt \
     --sample_file path/to/samples.txt \
