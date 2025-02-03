@@ -166,7 +166,7 @@ bash
     --experiment_config_path config.yaml \
     --config_path model_config.json \
     --checkpoint_path checkpoint.pt \
-	--labels 11 \ 
+	--labels 10 \ 
     --sample_file samples.txt \
     --regions_file regions.csv \
     --model_output_file custom_model_predictions.tsv \
