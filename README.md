@@ -150,29 +150,12 @@ bash
 | `--checkpoint_path`          | Path to the model checkpoint file.                                          | **Required**            |
 | `--model_output_file`        | Output file for the model predictions.                                      | `model_predictions.tsv` |
 | `--batch_size`               | Batch size for the model inference.                                         | `32`                    |
-| `--labels`                   | Number of labels for the model.                                             | **Required**            |
+| `--labels`                   | Number of samples used to finetune the model.                               | **Required**            |
 | `--sample_file`              | Path to the file with sample names and bigWig file paths.                   | **Required**            |
 | `--regions_file`             | Path to the file with genomic regions in CSV format.                        | **Required**            |
 | `--real_coverage_output`     | Output file for real coverage.                                              | `real_coverage.csv`     |
 | `--hmm_output_file`          | Output file for HMM predictions.                                            | `hmm_predictions.tsv`   |
 | `--help`                     | Show the help message and exit.                                             | N/A                     |
-
-## Example
-
-```bash
-./run_pipeline.sh \
-    --keys_path keys.csv \
-    --hdf5_path data.hdf5 \
-    --experiment_config_path config.yaml \
-    --config_path model_config.json \
-    --checkpoint_path checkpoint.pt \
-	--labels 10 \ 
-    --sample_file samples.txt \
-    --regions_file regions.csv \
-    --model_output_file custom_model_predictions.tsv \
-    --real_coverage_output custom_real_coverage.csv \
-    --hmm_output_file custom_hmm_predictions.tsv
-```
 
 ## Output Files
 
