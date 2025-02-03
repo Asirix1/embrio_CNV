@@ -113,6 +113,94 @@ In *CoveragePrediction.yaml*, you may also customize:
 ```
 tensorboard --logdir <model_save_directory> --port <port>
 ```
+
+# Genomic Coverage Prediction and Segmentation Pipeline
+
+This repository contains a bash script (`cnv_prediction_pipeline.sh`) that automates a pipeline for genomic coverage prediction, real coverage computation, and segmentation using a Hidden Markov Model (HMM). The pipeline consists of three main steps:
+
+1. **Coverage Prediction**: Predicts genomic coverage using a pre-trained model.
+2. **Real Coverage Computation**: Computes real coverage values from bigWig files for specified genomic regions.
+3. **HMM Segmentation**: Segments the genome using a Hidden Markov Model based on the predicted and real coverage values.
+
+
+
+# Usage
+## Running the Pipeline
+To run the pipeline, use the following command:
+```
+bash
+./cnv_prediction_pipeline.sh \
+    --keys_path path/to/keys.csv \
+    --hdf5_path path/to/data.hdf5 \
+    --experiment_config_path path/to/experiment_config.yaml \
+	--labels num_samples \
+    --config_path path/to/model_config.json \
+    --checkpoint_path path/to/checkpoint.pt \
+    --sample_file path/to/samples.txt \
+    --regions_file path/to/regions.csv
+```
+## Command-Line Arguments
+
+| Argument                     | Description                                                                 | Default Value           |
+|------------------------------|-----------------------------------------------------------------------------|-------------------------|
+| `--keys_path`                | Path to the keys CSV file for the model.                                    | **Required**            |
+| `--hdf5_path`                | Path to the HDF5 file for the model.                                        | **Required**            |
+| `--experiment_config_path`   | Path to the experiment config YAML file for the model.                      | **Required**            |
+| `--config_path`              | Path to the model config JSON file.                                         | **Required**            |
+| `--checkpoint_path`          | Path to the model checkpoint file.                                          | **Required**            |
+| `--model_output_file`        | Output file for the model predictions.                                      | `model_predictions.tsv` |
+| `--batch_size`               | Batch size for the model inference.                                         | `32`                    |
+| `--labels`                   | Number of labels for the model.                                             | **Required**            |
+| `--sample_file`              | Path to the file with sample names and bigWig file paths.                   | **Required**            |
+| `--regions_file`             | Path to the file with genomic regions in CSV format.                        | **Required**            |
+| `--real_coverage_output`     | Output file for real coverage.                                              | `real_coverage.csv`     |
+| `--hmm_output_file`          | Output file for HMM predictions.                                            | `hmm_predictions.tsv`   |
+| `--help`                     | Show the help message and exit.                                             | N/A                     |
+
+## Example
+
+```bash
+./run_pipeline.sh \
+    --keys_path keys.csv \
+    --hdf5_path data.hdf5 \
+    --experiment_config_path config.yaml \
+    --config_path model_config.json \
+    --checkpoint_path checkpoint.pt \
+	--labels 11 \ 
+    --sample_file samples.txt \
+    --regions_file regions.csv \
+    --model_output_file custom_model_predictions.tsv \
+    --real_coverage_output custom_real_coverage.csv \
+    --hmm_output_file custom_hmm_predictions.tsv
+```
+
+## Output Files
+
+1. **Model Predictions** (`model_predictions.tsv` or custom name):
+   - Contains predicted coverage values for the specified genomic regions.
+
+2. **Real Coverage** (`real_coverage.csv` or custom name):
+   - Contains computed real coverage values from bigWig files.
+
+3. **HMM Predictions** (`hmm_predictions.tsv` or custom name):
+   - Contains the final genome segmentation results from the HMM.
+
+## Script Workflow
+
+1. **Coverage Prediction**:
+   - Runs `predictions_by_the_model.py` to generate predicted coverage values.
+   - Output: `model_predictions.tsv`.
+
+2. **Real Coverage Computation**:
+   - Runs `real_coverage_count.py` to compute real coverage values from bigWig files.
+   - Output: `real_coverage.csv`.
+
+3. **HMM Segmentation**:
+   - Runs `hmm_segmentator.py` to segment the genome using the predicted and real coverage values.
+   - Output: `hmm_predictions.tsv`.
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Getting Coverage Prediction by predictions_by_the_model.py
 
 This script runs a coverage prediction model using a pre-trained transformer model. It loads input data from an HDF5 file and processes it in batches to generate predictions.
