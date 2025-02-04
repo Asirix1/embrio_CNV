@@ -143,7 +143,7 @@ bash
 
 | Argument                     | Description                                                                 | Default Value           |
 |------------------------------|-----------------------------------------------------------------------------|-------------------------|
-| `--keys_path`                | Path to the genomic regions in CSV format used for the model.                                    | **Required**            |
+| `--keys_path`                | Path to the keys CSV file for the model.                                    | **Required**            |
 | `--hdf5_path`                | Path to the HDF5 file for the model.                                        | **Required**            |
 | `--experiment_config_path`   | Path to the experiment config YAML file for the model.                      | **Required**            |
 | `--config_path`              | Path to the model config JSON file.                                         | **Required**            |
@@ -152,6 +152,7 @@ bash
 | `--batch_size`               | Batch size for the model inference.                                         | `32`                    |
 | `--labels`                   | Number of samples used to finetune the model.                               | **Required**            |
 | `--sample_file`              | Path to the file with sample names and bigWig file paths.                   | **Required**            |
+| `--regions_file`             | Path to the file with genomic regions in CSV format.                        | **Required**            |
 | `--real_coverage_output`     | Output file for real coverage.                                              | `real_coverage.csv`     |
 | `--hmm_output_file`          | Output file for HMM predictions.                                            | `hmm_predictions.tsv`   |
 | `--help`                     | Show the help message and exit.                                             | N/A                     |

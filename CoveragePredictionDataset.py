@@ -1,8 +1,6 @@
 import torch
 from torch.utils.data import Dataset
 import pyBigWig as bw
-import pybedtools
-from pybedtools import BedTool
 import pandas as pd
 import os
 import numpy as np
@@ -17,17 +15,18 @@ import tempfile
 import sys
 from transformers import AutoTokenizer
 
-class ExpressionCountsDataset(Dataset):
+class CoverageDataset(Dataset):
     N_SERVICE_TOKENS = 2
 
     def __init__(self,
                  tokenizer,
                  targets_path: str,
                  tokenized_genome_path: str,
+                 key_file_path: str,  # Path to the text file with keys
                  subset: float = 1,
                  seed: int = 42,
                  max_seq_len: int = 512,
-                 n_context_tokens: int = 10,
+                 n_context_tokens: int = 0,
                  n_target_tokens: int = 510,
                  shift_length: int = 510,
                  loglevel: int = logging.WARNING,
@@ -40,6 +39,7 @@ class ExpressionCountsDataset(Dataset):
         Args:
             targets_path: path to bigWig tab-delimeted metadata file, containing for each bigWig label and filepath
             tokenized_genome_path: path to the hdf5 file containing tokenized genome data
+            key_file_path: path to the text file containing keys for hdf5 file
             n_context_tokens: number of tokens for left and right context
             n_target_tokens: number of target tokens
             shift_length: shift between samples (in tokens). shift_length==2*n_context_tokens+n_target_tokens for non-overlapping samples
@@ -57,7 +57,7 @@ class ExpressionCountsDataset(Dataset):
         self.n_context_tokens = n_context_tokens
         self.n_target_tokens = n_target_tokens
         self.sample_length = 2 * n_context_tokens + n_target_tokens
-        assert self.sample_length + self.N_SERVICE_TOKENS == max_seq_len  # truncation and padding are not yet implemented
+        assert self.sample_length + self.N_SERVICE_TOKENS == max_seq_len
         self.shift_length = shift_length
         self.service_token_encodings = get_service_token_encodings(self.tokenizer)
         self.transform_targets = transform_targets
@@ -74,8 +74,15 @@ class ExpressionCountsDataset(Dataset):
         else:
             self.hash_path = hash_path
 
-        # Load tokenized genome data from hdf5
-        self.load_tokenized_genome()
+
+        # Load keys from the key file
+        self.load_keys(key_file_path)
+
+    def load_keys(self, key_file_path):
+        """Loads the list of keys from a text file."""
+        with open(key_file_path, 'r') as f:
+            self.keys = [line.strip() for line in f]
+        self.logger.info(f"Loaded {len(self.keys)} keys from {key_file_path}")
 
     def read_bigWig_metadata(self, targets_path):
         self.logger.info("Reading bigWig file paths")
@@ -85,14 +92,14 @@ class ExpressionCountsDataset(Dataset):
                 line = line.strip()
                 if line and not line.startswith("#"):
                     k, v = line.split()
-                    assert not k in self.bigWigPaths.keys(), \
+                    assert k not in self.bigWigPaths.keys(), \
                         f"Found repeated bigWig name {k}"
                     self.bigWigPaths[k] = v
         self.n_tracks = len(self.bigWigPaths.keys())
         self.files_opened = False
 
-    def open_files(self):
-        self.logger.info("Opening bigWig file handlers")
+    def open_files(self): #load_tokenized_genome called after forking
+        self.load_tokenized_genome()
         self.bigWigHandlers = {}
         for k, v in self.bigWigPaths.items():
             try:
@@ -104,13 +111,9 @@ class ExpressionCountsDataset(Dataset):
 
     def load_tokenized_genome(self):
         """Loads the tokenized genome data from an hdf5 file."""
-        self.logger.info("Loading tokenized genome data from hdf5 file")
         self.tokenized_genome_data = {}
-        with h5py.File(self.tokenized_genome_path, 'r') as f:
-            for key in f.keys():
-                self.tokenized_genome_data[key] = f[key][...]
+        self.tokenized_genome_data =  h5py.File(self.tokenized_genome_path, 'r')
                 
-
     def get_hash_path(self):
         m = hashlib.blake2b(digest_size=8)
         m.update(str(self.tokenized_genome_path).encode("utf-8"))
@@ -123,24 +126,24 @@ class ExpressionCountsDataset(Dataset):
         return hash_path
 
     def __len__(self):
-        return len(self.tokenized_genome_data)
+        return len(self.keys)
 
     def __getitem__(self, idx):
         if not self.files_opened:
             self.open_files()
-
-        # Extract input_ids for the given index (region)
-        region_key = list(self.tokenized_genome_data.keys())[idx]
         
-        chrom, start, end = region_key[1:-1].split(',')
-        input_ids = self.tokenized_genome_data[region_key]
-        # Prepare input features
+        # Get the key for the current index
+        region_key = self.keys[idx]
+        
+        chrom, start, end = region_key.split(',')
+        
+        input_ids = self.tokenized_genome_data[region_key][...]             
         features = {
             "input_ids": input_ids.astype(np.int32).reshape(1, -1),
             "attention_mask": np.ones(len(input_ids), dtype=bool).reshape(1, -1),
             "token_type_ids": np.zeros(len(input_ids), dtype=np.int32).reshape(1, -1),
         }
-
+        
         # Concatenate with CLS and SEP tokens
         features = concatenate_encodings(
             [
@@ -149,27 +152,30 @@ class ExpressionCountsDataset(Dataset):
                 self.service_token_encodings["SEP"],
             ]
         )
-
+        
         # Reducing extra dimension
         features = {k: v[0] for k, v in features.items()}
-
-        # Initialize labels array to hold signals for all bigWig files
+        
         labels = np.zeros(shape=(self.n_tracks,), dtype=np.float32)
-
-        # Aggregate signals for each bigWig file
+        bins_mask = np.ones(shape=(self.sample_length + self.N_SERVICE_TOKENS,), dtype=bool)
+        
+        bins_mask[0:self.n_context_tokens + 1] = 0
+        bins_mask[-1 - self.n_context_tokens:] = 0
+        assert sum(bins_mask) == self.n_target_tokens
+        
         for ind, (k, v) in enumerate(self.bigWigHandlers.items()):
             try:
-                values = v.values(str(chrom[1:-1]), int(start), int(end), numpy=True)
-                labels[ind] = np.sum(values)  # Sum of signals over the region
+                values = v.values(str(chrom), int(start), int(end), numpy=True)
+                labels[ind] = np.sum(values)
             except RuntimeError as e:
                 print(idx, chrom, int(start), int(end))
                 raise e
-
-        # Transform targets if needed
+        
         if self.transform_targets is not None:
             features["labels"] = self.transform_targets(labels)
         else:
             features["labels"] = labels
+        features["bins_mask"] = bins_mask
         
         return features
 

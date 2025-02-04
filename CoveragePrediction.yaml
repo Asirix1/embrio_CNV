@@ -42,9 +42,9 @@ model_kwargs:
   num_fc_layers: 3
 
 train_dataset:
-  _target_: CoverageDataset.CoverageDataset
-  targets_path: "{HOME_PATH}/data/bigwigs/bigwigs.txt"
-  tokenized_genome_path: "{HOME_PATH}/data/combined_510_tokens.hdf5"
+  _target_: CoveragePredictionDataset.CoverageDataset
+  targets_path: "${HOME_PATH}/data/bigwigs/bigwigs.txt"
+  tokenized_genome_path: "${HOME_PATH}/data//test_for_git_tokens.hdf5"
   key_file_path: '${HOME_PATH}/data/second_train_keys.txt'
   tokenizer: "AIRI-Institute/gena-lm-bert-base-t2t"
   max_seq_len: 512
@@ -54,9 +54,9 @@ train_dataset:
   seed: ${args_params.seed}
 
 valid_dataset:
-  _target_: CoverageDataset.CoverageDataset
-  targets_path: "./data/bigwigs/bigwigs.txt"
-  tokenized_genome_path: "/mnt/nfs_dna/popov/CNV_prediction/tokenized_genome/combined_510_tokens.hdf5"
+  _target_: CoveragePredictionDataset.CoverageDataset
+  targets_path: "${HOME_PATH}/data/bigwigs/bigwigs.txt"
+  tokenized_genome_path: "${HOME_PATH}/data//test_for_git_tokens.hdf5"
   tokenizer: "AIRI-Institute/gena-lm-bert-base-t2t"
   key_file_path: '${HOME_PATH}/data/second_val_keys.txt'
   max_seq_len: 512

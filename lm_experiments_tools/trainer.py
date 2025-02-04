@@ -142,6 +142,7 @@ class TrainerArgs:
         default='min',
         metadata={'help': 'metric should be minimized (min) or maximized (max) (default: min)'})
 
+    save_dynamic_classifiers: bool = field(default=False, metadata={'help': 'Save dynamic classifiers state (default: False)'})
 
 class Trainer:
     def __init__(self, args, model, optimizer, train_dataloader, valid_dataloader, train_sampler=None,
@@ -151,6 +152,7 @@ class Trainer:
                  metrics_fn=None,
                  forward_kwargs={},
                  generate_kwargs={},
+                 labels_shape=None
                  ) -> None:
         """Implements training loop with horovod multi-gpu, apex fp16 & grad accumulation support.
 
@@ -257,7 +259,8 @@ class Trainer:
                                               args.num_warmup_steps, args.num_training_steps)
         else:
             self.lr_scheduler = None
-
+        if hasattr(self.model, 'dynamic_classifiers'):
+            self.model.add_dynamic_layers(labels_shape)
         self.args.use_lr_drop = getattr(self.args, 'use_lr_drop', False)
         if self.args.use_lr_drop and self.lr_scheduler is not None:
             raise RuntimeError('lr drop can not be used with other lr schedulers')
@@ -738,6 +741,8 @@ class Trainer:
         if not reset_iteration:
             self.n_iter = checkpoint.get('iteration', 0) + 1  # as saved iteration is already performed
             self.n_epoch = checkpoint.get('epoch', 0)
+        if 'dynamic_classifiers' in checkpoint:
+            self.model.dynamic_classifiers.load_state_dict(checkpoint['dynamic_classifiers'])
 
         self._log_info(f'Model was loaded from: {load_path}')
         self._log_info(f'Start iteration = {self.n_iter}')
@@ -760,7 +765,8 @@ class Trainer:
                 'optimizer_state_dict': self.optimizer.state_dict(),
                 'iteration': self.n_iter,
                 'epoch': self.n_epoch,
-                'metrics': self.metrics}
+                'metrics': self.metrics,
+                'dynamic_classifiers': self.model.dynamic_classifiers.state_dict() if hasattr(self.model.dynamic_classifiers, 'state_dict') else None}
             if self.use_apex_amp:
                 to_save['amp'] = self.amp.state_dict()
             if self.use_torch_amp:

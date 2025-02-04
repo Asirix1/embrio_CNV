@@ -4,16 +4,16 @@ from transformers.modeling_outputs import TokenClassifierOutput
 
 from src.gena_lm.modeling_bert import BertPreTrainedModel, BertModel
 
+
 class BertForCoveragePrediction(BertPreTrainedModel):
 
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
     def __init__(self, config, 
-                        loss_fct = nn.PoissonNLLLoss(log_input=False, reduction='none', full=True),  
-                        num_fc_layers = 0,
-                        activation = nn.Softplus()):  
+                 loss_fct=nn.PoissonNLLLoss(log_input=False, reduction='none', full=True),  
+                 num_fc_layers=0,
+                 activation=nn.Softplus()):
         super().__init__(config)
-        loss_fct = nn.PoissonNLLLoss(log_input=False, reduction='none', full=True)    
         self.num_labels = config.num_labels
         self.config = config
         self.bert = BertModel(config, add_pooling_layer=False)
@@ -29,14 +29,18 @@ class BertForCoveragePrediction(BertPreTrainedModel):
                 self.fc_layers.append(nn.Linear(config.hidden_size, config.hidden_size))
                 self.fc_layers.append(self.ReLU)
                 self.fc_layers.append(self.dropout)
-        self.classifier = nn.Linear(config.hidden_size, config.num_labels)        
         
+        self.dynamic_classifiers = nn.ModuleList()
         self.activation = activation
-        self.loss_fct = loss_fct
+        self.loss_fct = nn.PoissonNLLLoss(log_input=False, reduction='none', full=True)
 
         # Initialize weights and apply final processing
         self.post_init()
-
+    def add_dynamic_layers(self, labels_shape):
+        num_samples = labels_shape[1]  
+        self.dynamic_classifiers = nn.ModuleList([
+            nn.Linear(self.config.hidden_size, 1).to(self.device) for _ in range(num_samples)
+        ])    
     def forward(
         self,
         input_ids=None,
@@ -69,10 +73,15 @@ class BertForCoveragePrediction(BertPreTrainedModel):
             for layer in self.fc_layers:
                 bins_output = layer(bins_output)
 
-        logits = self.classifier(bins_output)
-        pred = self.activation(logits)    
+
+        if labels is not None and len(self.dynamic_classifiers) == 0:
+            self.add_dynamic_layers(labels.shape)
+        logits_list = [classifier(bins_output) for classifier in self.dynamic_classifiers]
+        logits = torch.cat(logits_list, dim=-1)
+        pred = self.activation(logits)
+        
         loss = None
-        if labels is not None:  
+        if labels is not None:
             if target_weights is not None:
                 loss = self.loss_fct(pred, labels)
                 assert len(loss.shape) > 1, f"loss shape == 1, {loss.shape}. Did you use reduction='None'?"
@@ -93,5 +102,3 @@ class BertForCoveragePrediction(BertPreTrainedModel):
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
-
-    

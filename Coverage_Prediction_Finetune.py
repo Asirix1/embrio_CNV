@@ -152,9 +152,9 @@ if __name__ == '__main__':
                                   weight_decay=args.weight_decay)
     else:
         optimizer = optimizer_cls(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-
+    labels_shape=(per_worker_batch_size, model_cfg.num_labels)
     trainer = Trainer(args, model, optimizer, train_dataloader, valid_dataloader=valid_dataloader,
-                      train_sampler=train_sampler, batch_transform_fn=batch_transform_fn)
+                      train_sampler=train_sampler, batch_transform_fn=batch_transform_fn,labels_shape=labels_shape)
     # train loop
     trainer.train()
     # make sure all workers are done

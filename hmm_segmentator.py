@@ -178,7 +178,7 @@ def main(prediction_coverage, real_coverage, output_file):
 
     merged_df = merged_df.drop(columns=real_columns + pred_columns)
 
-    exclude_regions = load_bed_regions("T2T.excluderanges.bed")
+    exclude_regions = load_bed_regions("./data/T2T.excluderanges.bed")
     filtered_regions = exclude_regions
 
     tqdm.pandas(desc="Filtering regions")
