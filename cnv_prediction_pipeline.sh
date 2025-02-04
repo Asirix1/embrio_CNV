@@ -6,7 +6,7 @@ function show_help() {
     echo "Run a pipeline for coverage prediction, real coverage computation, and HMM segmentation."
     echo ""
     echo "Options:"
-    echo "  --keys_path PATH               Path to the keys CSV file for the model."
+    echo "  --keys_path PATH               Path to the regions in CSV used to finetune the model."
     echo "  --hdf5_path PATH               Path to the HDF5 file for the model."
     echo "  --experiment_config_path PATH  Path to the experiment config YAML file for the model."
     echo "  --config_path PATH             Path to the model config JSON file."
@@ -22,8 +22,7 @@ function show_help() {
     echo ""
     echo "Example:"
     echo "  $0 --keys_path keys.csv --hdf5_path data.hdf5 --experiment_config_path config.yaml \\"
-    echo "     --config_path model_config.json --labels num_samples --checkpoint_path checkpoint.pt --sample_file samples.txt \\"
-    echo "     --regions_file regions.csv"
+    echo "     --config_path model_config.json --labels num_samples --checkpoint_path checkpoint.pt --sample_file samples.txt"
     exit 0
 }
 
@@ -39,7 +38,6 @@ while [[ "$#" -gt 0 ]]; do
         --batch_size) BATCH_SIZE="$2"; shift ;;
         --labels) LABELS="$2"; shift ;;
         --sample_file) SAMPLE_FILE="$2"; shift ;;
-        --regions_file) REGIONS_FILE="$2"; shift ;;
         --real_coverage_output) REAL_COVERAGE_OUTPUT="$2"; shift ;;
         --hmm_output_file) HMM_OUTPUT_FILE="$2"; shift ;;
         --help) show_help ;;
@@ -55,7 +53,7 @@ REAL_COVERAGE_OUTPUT=${REAL_COVERAGE_OUTPUT:-"real_coverage.csv"}
 HMM_OUTPUT_FILE=${HMM_OUTPUT_FILE:-"hmm_predictions.tsv"}
 
 # Validate required arguments
-if [[ -z "$KEYS_PATH" || -z "$HDF5_PATH" || -z "$EXPERIMENT_CONFIG_PATH" || -z "$CONFIG_PATH" || -z "$CHECKPOINT_PATH" || -z "$SAMPLE_FILE" || -z "$REGIONS_FILE" || -z "$LABELS" ]]; then
+if [[ -z "$KEYS_PATH" || -z "$HDF5_PATH" || -z "$EXPERIMENT_CONFIG_PATH" || -z "$CONFIG_PATH" || -z "$CHECKPOINT_PATH" || -z "$SAMPLE_FILE" || -z "$LABELS" ]]; then
     echo "Error: Missing required arguments."
     show_help
 fi
@@ -82,7 +80,7 @@ fi
 echo "Running real_coverage_count.py..."
 python real_coverage_count.py \
     --samples "$SAMPLE_FILE" \
-    --regions "$REGIONS_FILE" \
+    --regions "$KEYS_PATH \
     --output "$REAL_COVERAGE_OUTPUT"
 
 # Check if the real coverage file was generated
