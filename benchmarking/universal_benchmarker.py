@@ -245,7 +245,7 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
             table['Ratio_list'].append(ratio)
             table['IDs'].append(IDs)
             table['contr'].append(embryo_CNV['All_rearrangements'][contr_n])
-            table['preIDs'].append(result_main_filt['SV_chrom'])
+            table['preIDs'].append(list(result_main_filt['SV_chrom']))
             s+=1
 
         
@@ -730,7 +730,7 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
             table['Ratio_list'].append(ratio)
             table['IDs'].append(IDs)
             table['contr'].append(embryo_CNV['All_rearrangements'][contr_n])
-            table['preIDs'].append(result_main_filt['SV_chrom'])
+            table['preIDs'].append(list(result_main_filt['SV_chrom']))
             s+=1
 
         
