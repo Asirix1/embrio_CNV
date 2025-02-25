@@ -1,5 +1,3 @@
-
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -13,7 +11,9 @@ warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', category=pd.errors.SettingWithCopyWarning)
 
 
-def main(result_path, reference_CNV_path, selected_embryos, output_dir):
+def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
+
+
 
     if os.path.isdir(output_dir):
         print(f"Files will be saved to {output_dir}.")
@@ -33,14 +33,43 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
     # selected_embryos=['embryo6', 'BOC_e1', 'CHR_K1', 'CHR_e1', 'IlI_K3', 'Pash_e3', 'XAH_e13', 'YAK_e4', 'microchip-c', 'Kra_e', 'BTR_e3']
 
 
-    result=pd.read_csv(result_path, sep='\t')
-    result.rename(columns={'Column': 'Sample (E-embryo, K-biopsy)', 'Chromosome': 'SV_chrom', 'Start': 'SV_start', 'End':'SV_end', 'Class':'Item_count'}, inplace=True)
-    result.insert(result.columns.get_loc('SV_end')+1, 'SV_length', [(result['SV_end'][i]-result['SV_start'][i]) for i in range(len(result))])
+    preresult=pd.read_csv(preresult_path, sep='\t')
+    preresult.rename(columns={'Column': 'Sample (E-embryo, K-biopsy)', 'Chromosome': 'SV_chrom', 'Start': 'SV_start', 'End':'SV_end', 'Class':'Item_count'}, inplace=True)
+    preresult.insert(preresult.columns.get_loc('SV_end')+1, 'SV_length', [(preresult['SV_end'][i]-preresult['SV_start'][i]) for i in range(len(preresult))])
 
-    result['SV_chrom'].update(str(str(i).removeprefix('chr')) for i in result['SV_chrom'])
+    preresult['SV_chrom'].update(str(str(i).removeprefix('chr')) for i in preresult['SV_chrom'])
 
-    # result_1=result.query('abs(`SV_length`)>=10**7').query(f"`Sample (E-embryo, K-biopsy)`=='Zap_e3'").query('`Parameter`>1').reset_index(drop=True)
+    preresult.insert(preresult.columns.get_loc('Parameter')+1, 'Status', [0 for _ in range(len(preresult))])
 
+
+    preresult['Parameter'].update(float(i) for i in preresult['Parameter'])
+
+    quality_list=list(set([i for i in preresult['Parameter']]))
+    quality_list.sort()
+
+    result=preresult.head(0)
+
+    for i in range(len(preresult)):
+        if i+1!=len(preresult) and preresult['Status'][i]==0 and preresult['Parameter'][i]==preresult['Parameter'][i+1] and preresult['Sample (E-embryo, K-biopsy)'][i]==preresult['Sample (E-embryo, K-biopsy)'][i+1] and preresult['SV_chrom'][i]==preresult['SV_chrom'][i+1] and preresult['Сlass'][i]==preresult['Сlass'][i+1] and (preresult['SV_end'][i]-preresult['SV_start'][i+1])<max(preresult['SV_length'][i],preresult['SV_length'][i+1]):
+            preresult['Status'][i+1]=1
+            new_row=preresult.loc[[i]]
+            new_row.reset_index(drop=True, inplace=True)
+            new_row['SV_end'][0]=preresult['SV_end'][i+1]
+            while True:
+                i+=1
+                using=0
+                if preresult['Sample (E-embryo, K-biopsy)'][i]==preresult['Sample (E-embryo, K-biopsy)'][i+1] and preresult['Parameter'][i]==preresult['Parameter'][i+1] and preresult['SV_chrom'][i]==preresult['SV_chrom'][i+1] and preresult['Сlass'][i]==preresult['Сlass'][i+1] and (preresult['SV_end'][i]-preresult['SV_start'][i+1])<max(preresult['SV_length'][i],preresult['SV_length'][i+1]):
+                    new_row['SV_end'][0]=preresult['SV_end'][i+1]
+                    preresult['Status'][i+1]=1
+                else:
+                    new_row['SV_length'][0]=new_row['SV_end'][0]-new_row['SV_start'][0]
+                    result=pd.concat([result, new_row], ignore_index=True)
+                    break
+        elif preresult['Status'][i]==0:
+            new_row=preresult.loc[[i]]
+            new_row.reset_index(drop=True, inplace=True)
+            result=pd.concat([result, new_row], ignore_index=True)
+    result[result['Sample (E-embryo, K-biopsy)']=='MAD_K3']
 
 
     control_CNV_pre=pd.read_csv(reference_CNV_path)
@@ -93,13 +122,6 @@ def main(result_path, reference_CNV_path, selected_embryos, output_dir):
                 #there are ONLY mosaic rearrangements for this embryo
                 control_CNV_euplodised['All_rearrangements'][i]='Euploid embryo'
 
-
-    result['Parameter'].update(float(i) for i in result['Parameter'])
-
-
-
-    quality_list=list(set([i for i in result['Parameter']]))
-    quality_list.sort()
 
     q_label=[round(i, 1) for i in quality_list]
 
@@ -1106,3 +1128,5 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output_dir', default=f'{os.path.dirname(os.path.abspath(__file__))}/output', type=str, required=False, help='Path to the output')
     args = parser.parse_args()
     main(args.result_path, args.reference_CNV_path, args.selected_embryos, args.output_dir)
+
+
