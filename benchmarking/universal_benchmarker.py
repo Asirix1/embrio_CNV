@@ -50,7 +50,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     result=preresult.head(0)
 
     for i in range(len(preresult)):
-        if i+1!=len(preresult) and preresult['Status'][i]==0 and preresult['Parameter'][i]==preresult['Parameter'][i+1] and preresult['Sample (E-embryo, K-biopsy)'][i]==preresult['Sample (E-embryo, K-biopsy)'][i+1] and preresult['SV_chrom'][i]==preresult['SV_chrom'][i+1] and preresult['Сlass'][i]==preresult['Сlass'][i+1] and (preresult['SV_end'][i]-preresult['SV_start'][i+1])<max(preresult['SV_length'][i],preresult['SV_length'][i+1]):
+        if i+1!=len(preresult) and preresult['Status'][i]==0 and preresult['Parameter'][i]==preresult['Parameter'][i+1] and preresult['Sample (E-embryo, K-biopsy)'][i]==preresult['Sample (E-embryo, K-biopsy)'][i+1] and preresult['SV_chrom'][i]==preresult['SV_chrom'][i+1] and preresult['Class'][i]==preresult['Class'][i+1] and (preresult['SV_end'][i]-preresult['SV_start'][i+1])<max(preresult['SV_length'][i],preresult['SV_length'][i+1]):
             preresult['Status'][i+1]=1
             new_row=preresult.loc[[i]]
             new_row.reset_index(drop=True, inplace=True)
@@ -58,7 +58,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
             while True:
                 i+=1
                 using=0
-                if preresult['Sample (E-embryo, K-biopsy)'][i]==preresult['Sample (E-embryo, K-biopsy)'][i+1] and preresult['Parameter'][i]==preresult['Parameter'][i+1] and preresult['SV_chrom'][i]==preresult['SV_chrom'][i+1] and preresult['Сlass'][i]==preresult['Сlass'][i+1] and (preresult['SV_end'][i]-preresult['SV_start'][i+1])<max(preresult['SV_length'][i],preresult['SV_length'][i+1]):
+                if preresult['Sample (E-embryo, K-biopsy)'][i]==preresult['Sample (E-embryo, K-biopsy)'][i+1] and preresult['Parameter'][i]==preresult['Parameter'][i+1] and preresult['SV_chrom'][i]==preresult['SV_chrom'][i+1] and preresult['Class'][i]==preresult['Class'][i+1] and (preresult['SV_end'][i]-preresult['SV_start'][i+1])<max(preresult['SV_length'][i],preresult['SV_length'][i+1]):
                     new_row['SV_end'][0]=preresult['SV_end'][i+1]
                     preresult['Status'][i+1]=1
                 else:
