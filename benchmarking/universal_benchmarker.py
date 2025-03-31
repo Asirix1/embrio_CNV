@@ -73,11 +73,36 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     control_CNV_pre=pd.read_csv(reference_CNV_path)
     #path to reference rearrangements
 
+
+    pre_contr_embr_list=list(set(list(control_CNV_pre.query('`All_rearrangements`!="Euploid embryo" and `All_rearrangements`!="without PGT"')['Sample (E-embryo, K-biopsy)'])))
+
+
+    for j in pre_contr_embr_list:
+        vision_table=control_CNV_pre.query(f'`Sample (E-embryo, K-biopsy)`=="{j}"')
+        s=0
+        for i in list(vision_table['Chromosome']):
+            if i not in ['X', 'Y']:
+                s=1
+        vision_table.reset_index(drop=True, inplace=True)
+        if s==0:
+            addition=vision_table.head(1)
+            addition['All_rearrangements'][0]="Euploid embryo"
+            addition['Region_by_ISCN'][0]=pd.NaT
+            addition['Region_in_bp'][0]=pd.NaT
+            addition['Chromosome'][0]=pd.NaT
+            addition['Length'][0]=pd.NaT
+            addition['Item_count'][0]=pd.NaT
+            addition['Mosaicism_main'][0]=pd.NaT
+            addition['Mosaicism_demo'][0]=pd.NaT
+            addition['Normal_karyotype'][0]=1
+            control_CNV_pre=control_CNV_pre[control_CNV_pre['Sample (E-embryo, K-biopsy)'] != str(j)]
+            control_CNV_pre=pd.concat([control_CNV_pre, addition], ignore_index=True)
+            control_CNV_pre.reset_index(drop=True, inplace=True)
+
     #with_mosaicism but then embryos with only mosaic rearrangements are "euplodisied" and other mosaic rearrangements are not accounted for even they are detected or not (no FP and no TP)
     control_CNV=control_CNV_pre.query('(`Length`>=10**7 or `All_rearrangements`=="Euploid embryo") and `Sample (E-embryo, K-biopsy)`!="microchip-c"').query('`All_rearrangements`=="Euploid embryo" or `Mosaicism_main`<=1 or `Mosaicism_demo`=="2-3" or `Mosaicism_demo`=="1-2"').query('`Chromosome`!="X" and `Chromosome`!="Y"')#.query('`Sequenced Read Pairs`>10000000')
     control_CNV=control_CNV.reset_index(drop=True)
-
-
+ 
     control_CNV.insert(control_CNV.columns.get_loc('Chromosome')+1, 'CNV_start', [str(i).split(':')[-1].split('-')[0] for i in control_CNV['Region_in_bp']])
     control_CNV.insert(control_CNV.columns.get_loc('Chromosome')+2, 'CNV_end', [str(i).split(':')[-1].split('-')[-1] for i in control_CNV['Region_in_bp']])
 
