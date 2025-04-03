@@ -89,7 +89,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
             control_CNV_pre.reset_index(drop=True, inplace=True)
 
     #with_mosaicism but then embryos with only mosaic rearrangements are "euplodisied" and other mosaic rearrangements are not accounted for even they are detected or not (no FP and no TP)
-    control_CNV=control_CNV_pre.query('(`Length`>=10**7 or `All_rearrangements`=="Euploid embryo") and `Sample (E-embryo, K-biopsy)`!="microchip-c"').query('`All_rearrangements`=="Euploid embryo" or `Mosaicism_main`<=1 or `Mosaicism_demo`=="2-3" or `Mosaicism_demo`=="1-2"').query('`Chromosome`!="X" and `Chromosome`!="Y"')#.query('`Sequenced Read Pairs`>10000000')
+    control_CNV=control_CNV_pre.query('`Length`>=10**7 or `All_rearrangements`=="Euploid embryo"').query('`All_rearrangements`=="Euploid embryo" or `Mosaicism_main`<=1 or `Mosaicism_demo`=="2-3" or `Mosaicism_demo`=="1-2"').query('`Chromosome`!="X" and `Chromosome`!="Y"')#.query('`Sequenced Read Pairs`>10000000')
     control_CNV=control_CNV.reset_index(drop=True)
  
     control_CNV.insert(control_CNV.columns.get_loc('Chromosome')+1, 'CNV_start', [str(i).split(':')[-1].split('-')[0] for i in control_CNV['Region_in_bp']])
