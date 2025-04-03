@@ -627,19 +627,19 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
 
 
-    metrics_start.to_csv(f'{output_dir}/no_mos_metrics_low_threshold.csv')
+    metrics_start.to_csv(f'{output_dir}/no_mos_metrics_low_threshold.csv', index=False)
     metrics_start
 
 
 
 
-    metrics_middle.to_csv(f'{output_dir}/no_mos_metrics_middle_threshold.csv')
+    metrics_middle.to_csv(f'{output_dir}/no_mos_metrics_middle_threshold.csv', index=False)
     metrics_middle
 
 
 
     metrics_high=metrics.copy()
-    metrics_high.to_csv(f'{output_dir}/no_mos_metrics_high_threshold.csv')
+    metrics_high.to_csv(f'{output_dir}/no_mos_metrics_high_threshold.csv', index=False)
     metrics_high
 
 
@@ -1115,19 +1115,19 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
 
 
-    metrics_start.to_csv(f'{output_dir}/with_mos_metrics_low_threshold.csv')
+    metrics_start.to_csv(f'{output_dir}/with_mos_metrics_low_threshold.csv', index=False)
     metrics_start
 
 
 
 
-    metrics_middle.to_csv(f'{output_dir}/with_mos_metrics_middle_threshold.csv')
+    metrics_middle.to_csv(f'{output_dir}/with_mos_metrics_middle_threshold.csv', index=False)
     metrics_middle
 
 
 
     metrics_high=metrics.copy()
-    metrics_high.to_csv(f'{output_dir}/with_mos_metrics_high_threshold.csv')
+    metrics_high.to_csv(f'{output_dir}/with_mos_metrics_high_threshold.csv', index=False)
     metrics_high
 
 
