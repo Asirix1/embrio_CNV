@@ -21,17 +21,6 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         print(f"Files will be saved to {output_dir}.")
 
 
-
-    # #GENA_55[53](46)_embryos
-    # selected_embryos=['11425_K', 'Aks_K', 'Ani_e', 'BOC_K1', 'BOC_e1', 'BTR_e3', 'Boc_K4', 'Boc_e4', 'CHR_K1', 'CHR_e1', 'Chal2_e', 'Chal_e', 'Dik_e1', 'Fuks1_K', 'Fuks2_K1', 'Gri2_e', 'HAN_K5', 'HAN_e5', 'IlI_K3', 'IlI_e4', 'Kaz3_K', 'Kira1_K1', 'Kond4_K', 'Kond5_K', 'Kov2_e', 'Kra1_e', 'Kra_e', 'Kul2_K', 'Kul_K', 'Kur3_e', 'MAD_K3', 'MAD_e3', 'Mat2_K', 'Mel6_K', 'Mog1_e', 'Ore1_K', 'Pash_K2', 'Pash_K3', 'Pash_e3', 'Sach2_K', 'Say3_K', 'Sheg1_e', 'Shen3_K', 'Vla1_e', 'Vla2_e', 'XAH_K13', 'XAH_e13', 'YAK_e4', 'Zap_K2', 'Zap_e2', 'Zap_e3', 'embryo6', 'microchip-c']
-
-    # #all_65(58)_embryos
-    # selected_embryos=['11425_K', '8388_1_K', '8388_3_K', 'Aks_K', 'Ani_e', 'BOC_K1', 'BOC_e1', 'BTR_e3', 'Boc_K4', 'Boc_e4', 'CHR_K1', 'CHR_e1', 'Chal2_e', 'Chal_e', 'Dik_e1', 'Fuks1_K', 'Fuks2_K1', 'Gri2_e', 'HAN_K5', 'HAN_e5', 'IlI_K3', 'IlI_e4', 'Kaz3_K', 'Kira1_K1', 'Kira1_K2', 'Kond3_K', 'Kond4_K', 'Kond5_K', 'Kov2_e', 'Kra1_e', 'Kra_e', 'Kul2_K', 'Kul_K', 'Kur3_e', 'Kus1_K', 'Lim1_K', 'MAD_K3', 'MAD_e3', 'Mat2_K', 'Mel6_K', 'Mog1_e', 'Ore1_K', 'Pan1_K', 'Pash_K2', 'Pash_K3', 'Pash_e3', 'Sach2_K', 'Say3_K', 'Sheg1_K2', 'Sheg1_e', 'Shen1_K', 'Shen1_e', 'Shen2_K', 'Shen3_K', 'Ton1_e', 'Vla1_e', 'Vla2_e', 'XAH_K13', 'XAH_e13', 'YAK_e4', 'Zap_K2', 'Zap_e2', 'Zap_e3', 'embryo6', 'microchip-c']
-
-    # #11 embryos
-    # selected_embryos=['embryo6', 'BOC_e1', 'CHR_K1', 'CHR_e1', 'IlI_K3', 'Pash_e3', 'XAH_e13', 'YAK_e4', 'microchip-c', 'Kra_e', 'BTR_e3']
-
-
     preresult=pd.read_csv(preresult_path, sep='\t')
     preresult.rename(columns={'Column': 'Sample (E-embryo, K-biopsy)', 'Chromosome': 'SV_chrom', 'Start': 'SV_start', 'End':'SV_end', 'Class':'Item_count'}, inplace=True)
     preresult.insert(preresult.columns.get_loc('SV_end')+1, 'SV_length', [(preresult['SV_end'][i]-preresult['SV_start'][i]) for i in range(len(preresult))])
@@ -1146,7 +1135,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Benchmarking of your CNV-caller.")
     parser.add_argument('-res','--result_path', type=str, required=True, help='Path to your file for analyses (your CNV-caller results)')
     parser.add_argument('-ref', '--reference_CNV_path', type=str, required=True, help='Path to the reference CNV file')
-    parser.add_argument('-se','--selected_embryos',default=['11425_K', '8388_1_K', '8388_3_K', 'Aks_K', 'Ani_e', 'BOC_K1', 'BOC_e1', 'BTR_e3', 'Boc_K4', 'Boc_e4', 'CHR_K1', 'CHR_e1', 'Chal2_e', 'Chal_e', 'Dik_e1', 'Fuks1_K', 'Fuks2_K1', 'Gri2_e', 'HAN_K5', 'HAN_e5', 'IlI_K3', 'IlI_e4', 'Kaz3_K', 'Kira1_K1', 'Kira1_K2', 'Kond3_K', 'Kond4_K', 'Kond5_K', 'Kov2_e', 'Kra1_e', 'Kra_e', 'Kul2_K', 'Kul_K', 'Kur3_e', 'Kus1_K', 'Lim1_K', 'MAD_K3', 'MAD_e3', 'Mat2_K', 'Mel6_K', 'Mog1_e', 'Ore1_K', 'Pan1_K', 'Pash_K2', 'Pash_K3', 'Pash_e3', 'Sach2_K', 'Say3_K', 'Sheg1_K2', 'Sheg1_e', 'Shen1_K', 'Shen1_e', 'Shen2_K', 'Shen3_K', 'Ton1_e', 'Vla1_e', 'Vla2_e', 'XAH_K13', 'XAH_e13', 'YAK_e4', 'Zap_K2', 'Zap_e2', 'Zap_e3', 'embryo6', 'microchip-c'], nargs='+', required=True, help='Names of selected embryos')
+    parser.add_argument('-se','--selected_embryos',default=['3Bal2_eB', '5Sachk3_eB', '6069_1_K', '7493_K', '8388_1_K', '8388_3_K', 'Aks1_K', 'Aks_K', 'BOC_K1', 'BOC_e1', 'BTR_e3', 'BTR_e9', 'Bal1_K', 'Bal1_eB', 'Bal3_e', 'Boc_e4', 'CHR_K1', 'CHR_e1', 'Ch-D_e', 'Chal_K1', 'Chal_e', 'Dik_e', 'Dik_e1', 'Fed1_e', 'Fisher1_K', 'Gri2_e', 'HAN_K5', 'HAN_e5', 'IlI_K3', 'IlI_e4', 'Isa1_e', 'K11', 'K13', 'Kaz1_e', 'Kaz3_K', 'Kira1_K2', 'Kond3_K', 'Kond4_K', 'Kov1_e', 'Kov2_e', 'Kra1_e', 'Kra3_K', 'Kra_e', 'Kul_K', 'Kur3_e', 'Kus1_K', 'MAD_K3', 'MAD_e3', 'Mar1_K', 'Pan1_K', 'Pash_K2', 'Pash_K3', 'Pash_e2', 'Pash_e3', 'Sach1_K_2110', 'Sach2_K', 'Sav4_e', 'Sav4_eB', 'Say3_K', 'Sheg1_K2', 'Sheg1_e', 'Shen1_K', 'Shen1_e', 'Shen2_K', 'Shen2_e', 'Shen3_K', 'Shen3_e', 'Shur3_K', 'Ton1_e', 'Vla1_K_0705', 'Vla1_e', 'Vla9_e', 'Vor1_K', 'XAH_K13', 'XAH_e13', 'YAK_e4', 'Zap_K2', 'Zap_e2', 'Zap_e3', 'embryo6', 'microchip-c'], nargs='+', required=True, help='Names of selected embryos')
     # default value is the list of 65 embryos with more than 100 000 Hi-C contacts.
     parser.add_argument('-o', '--output_dir', default=f'{os.path.dirname(os.path.abspath(__file__))}/output', type=str, required=False, help='Path to the output')
     args = parser.parse_args()
