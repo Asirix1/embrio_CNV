@@ -192,7 +192,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
     used_embryos_in_comp
 
-
+    metrics_dict_no_mos={}
+    
     for quality in quality_list:
         s=0
         table={"embryo": [], 'TP': [], 'FP': [], 'TP': [], 'FN': [], 'Recall': [], 'Precision': [], 'IDs':[], 'Ratio_list':[], 'contr': [], 'preIDs':[]}
@@ -286,6 +287,9 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
 
         metrics=pd.DataFrame(data=table)
+
+        metrics_dict_no_mos[quality]=metrics.copy()
+
 
 
         if quality==quality_list[0]:
@@ -629,7 +633,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
     metrics_start.to_csv(f'{output_dir}/no_mos_metrics_low_threshold.csv', index=False)
     metrics_start
-
+    
+    metrics_dict_no_mos[q_label[F1_list_no_mos.index(max(F1_list_no_mos))]].to_csv(f'{output_dir}/no_mos_metrics_optimal_threshold.csv', index=False)
 
 
 
@@ -682,7 +687,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
     used_embryos_in_comp
 
-
+    metrics_dict_with_mos={}
 
     for quality in quality_list:
         s=0
@@ -771,7 +776,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
 
         metrics=pd.DataFrame(data=table)
-
+        
+        metrics_dict_with_mos[quality]=metrics.copy()
 
         if quality==quality_list[0]:
             metrics_start=metrics.copy()
@@ -1117,7 +1123,9 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
     metrics_start.to_csv(f'{output_dir}/with_mos_metrics_low_threshold.csv', index=False)
     metrics_start
+    
 
+    metrics_dict_with_mos[q_label[F1_list_with_mos.index(max(F1_list_with_mos))]].to_csv(f'{output_dir}/with_mos_metrics_optimal_threshold.csv', index=False)
 
 
 
