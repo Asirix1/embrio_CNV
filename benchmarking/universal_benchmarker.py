@@ -284,10 +284,12 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
             s+=1
 
         
-
+        
 
         metrics=pd.DataFrame(data=table)
-
+	
+        metrics=metrics.sort_values(by='embryo')
+	
         metrics_dict_no_mos[quality]=metrics.copy()
 
 
@@ -776,6 +778,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
 
         metrics=pd.DataFrame(data=table)
+
+        metrics=metrics.sort_values(by='embryo')
         
         metrics_dict_with_mos[quality]=metrics.copy()
 
