@@ -147,10 +147,13 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     tp_out_values_list_no_mos=[]
     fp_out_values_list_no_mos=[]
     recall_out_list_no_mos=[]
+    FPR_out_list_no_mos=[]
     precision_out_list_no_mos=[]
     F1_list_no_mos=[]
     F1_out_list_no_mos=[]
+    tn_out_values_list_no_mos=[]
     fn_out_values_list_no_mos=[]
+
 
 
     tp_values_list_with_mos=[]
@@ -163,9 +166,11 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     tp_out_values_list_with_mos=[]
     fp_out_values_list_with_mos=[]
     recall_out_list_with_mos=[]
+    FPR_out_list_with_mos=[]
     precision_out_list_with_mos=[]
     F1_list_with_mos=[]
     F1_out_list_with_mos=[]
+    tn_out_values_list_with_mos=[]
     fn_out_values_list_with_mos=[]
 
 
@@ -331,6 +336,9 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         FP_out=len(metrics.query('`contr`=="Euploid embryo" and `FP`>0'))
         #calculating embryo-level FP for current threshhold level
 
+        TN_out=len(metrics.query('`contr`=="Euploid embryo" and (`FP`==0)'))
+        #calculating embryo-level TN for current threshhold level        
+
         FN_out=len(metrics.query('`contr`!="Euploid embryo" and (`FP`==0 and `TP`==0)'))
         #calculating embryo-level FN for current threshhold level
 
@@ -338,6 +346,9 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         if TP_out!=0:
             recall_out=TP_out/(TP_out+FN_out)
             #calculating CNV-level recall value for current threshhold level
+            FPR_out=FP_out/(FP_out+TN_out)
+            #calculating CNV-level FPR value for current threshhold level
+
         else:
             #No embryos with rearrangements was detected as TP.    But what if there aren't any rearrangements? Nothing. So, we don't use such datasets.
             recall_out=0
@@ -359,6 +370,9 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         recall_out_list_no_mos.append(recall_out)
         #wrinting embryo-level recall value for current threshhold level
 
+        FPR_out_list_no_mos.append(FPR_out)
+        #wrinting embryo-level FPR value for current threshhold level
+
         precision_out_list_no_mos.append(precision_out)
         #writing CNV-embryo precision value for current threshhold level
         
@@ -368,10 +382,39 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         F1_out_list_no_mos.append(F1_out)   
         #writing embryo-level F1 value for current threshhold level
 
+        tn_out_values_list_no_mos.append(TN_out)
+        #writing embryo-levels FN for current Threshold level for ROC-like graph
+
         fn_out_values_list_no_mos.append(FN_out)
         #writing embryo-levels FN for current Threshold level for ROC-like graph
 
+    AUC_out_no_mos = 0
+    for i in range(len(recall_out_list_no_mos)-1,-1,-1):
+        if i == len(recall_out_list_no_mos)-1:
+            AUC_out_no_mos+=(recall_out_list_no_mos[i]*FPR_out_list_no_mos[i])
+        else:
+            if FPR_out_list_no_mos[i]>FPR_out_list_no_mos[i+1]:
+                AUC_out_no_mos+=(recall_out_list_no_mos[i]*(FPR_out_list_no_mos[i]-FPR_out_list_no_mos[i+1]))
+
         
+    plt.clf()
+    y = recall_out_list_no_mos
+    x = FPR_out_list_no_mos
+
+
+    # Рисуем ROC-кривую оранжевым цветом
+    plt.plot(x, y, color='orange')
+
+
+    # Добавляем диагональную пунктирную синюю линию
+    plt.plot([0, 1], [0, 1], 'b--')
+
+
+    plt.ylabel('TPR')
+    plt.xlabel('FPR')
+    plt.savefig(f'{output_dir}/ROC_curve_out_no_mos.png')
+
+
 
 
 
@@ -541,9 +584,9 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     plt.xlabel('Recall')
     plt.savefig(f'{output_dir}/recall_to_precision_embryo_no_mos.png')
 
-
     #parameters with best F1 rate
-    score_out={"TP": [tp_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "FP": [fp_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "FN": [fn_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "Recall": [recall_out_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "Precision": [precision_out_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "F1": [max(F1_out_list_no_mos)], "Threshold": [q_label[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]]}
+    # score_out={"TP": [tp_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "FP": [fp_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "FN": [fn_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "TN": [tn_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "Recall": [recall_out_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "Precision": [precision_out_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "F1": [max(F1_out_list_no_mos)], "ROC-AUC": AUC_out_no_mos, "Threshold": [q_label[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]]}
+    score_out={"TP": [tp_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "FP": [fp_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "FN": [fn_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "TN": [tn_out_values_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "Recall": [recall_out_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "Precision": [precision_out_list_no_mos[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]], "F1": [max(F1_out_list_no_mos)], "Threshold": [q_label[F1_out_list_no_mos.index(max(F1_out_list_no_mos))]]}
     sc_t_out=pd.DataFrame(data=score_out)
     sc_t_out.to_csv(f'{output_dir}/no_mos_rate_embryo.csv', index=False)
     sc_t_out
@@ -820,6 +863,9 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         FP_out=len(metrics.query('`contr`=="Euploid embryo" and `FP`>0'))
         #calculating embryo-level FP for current threshhold level
 
+        TN_out=len(metrics.query('`contr`=="Euploid embryo" and (`FP`==0)'))
+        #calculating embryo-level TN for current threshhold level        
+
         FN_out=len(metrics.query('`contr`!="Euploid embryo" and (`FP`==0 and `TP`==0)'))
         #calculating embryo-level FN for current threshhold level
 
@@ -829,6 +875,9 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         if TP_out!=0:
             recall_out=TP_out/(TP_out+FN_out)
             #calculating CNV-level recall value for current threshhold level
+            FPR_out=FP_out/(FP_out+TN_out)
+            #calculating CNV-level FPR value for current threshhold level
+
         else:
             #No embryos with rearrangements was detected as TP.    But what if there aren't any rearrangements? Nothing. So, we don't use such datasets.
             recall_out=0
@@ -850,6 +899,9 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         recall_out_list_with_mos.append(recall_out)
         #wrinting embryo-level recall value for current threshhold level
 
+        FPR_out_list_with_mos.append(FPR_out)
+        #wrinting embryo-level FPR value for current threshhold level
+
         precision_out_list_with_mos.append(precision_out)
         #writing CNV-embryo precision value for current threshhold level
         
@@ -859,11 +911,34 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         F1_out_list_with_mos.append(F1_out)   
         #writing embryo-level F1 value for current threshhold level
 
+        tn_out_values_list_with_mos.append(TN_out)
+        #writing embryo-levels TN for current threshold level for ROC-like graph
+
         fn_out_values_list_with_mos.append(FN_out)
         #writing embryo-levels FN for current threshold level for ROC-like graph
 
 
+    AUC_out_with_mos = 0
+    for i in range(len(recall_out_list_with_mos)-1,-1,-1):
+        if i == len(recall_out_list_with_mos)-1:
+            AUC_out_with_mos+=(recall_out_list_with_mos[i]*FPR_out_list_with_mos[i])
+        else:
+            if FPR_out_list_with_mos[i]>FPR_out_list_with_mos[i+1]:
+                AUC_out_with_mos+=(recall_out_list_with_mos[i]*(FPR_out_list_with_mos[i]-FPR_out_list_with_mos[i+1]))
 
+    plt.clf()
+    y = recall_out_list_with_mos
+    x = FPR_out_list_with_mos
+
+    # Рисуем ROC-кривую оранжевым цветом
+    plt.plot(x, y, color='orange') 
+
+    # Добавляем диагональную пунктирную синюю линию
+    plt.plot([0, 1], [0, 1], 'b--')
+
+    plt.ylabel('TPR')
+    plt.xlabel('FPR')
+    plt.savefig(f'{output_dir}/ROC_curve_out_with_mos.png')
 
 
     plt.clf()
@@ -1035,7 +1110,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
 
     #parameters with best F1 rate
-    score_out={"TP": [tp_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "FP": [fp_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "FN": [fn_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "Recall": [recall_out_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "Precision": [precision_out_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "F1": [max(F1_out_list_with_mos)], "Threshold": [q_label[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]]}
+    # score_out={"TP": [tp_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "FP": [fp_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "FN": [fn_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "TN": [tn_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "Recall": [recall_out_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "Precision": [precision_out_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "F1": [max(F1_out_list_with_mos)], "ROC-AUC": AUC_out_with_mos, "Threshold": [q_label[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]]}
+    score_out={"TP": [tp_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "FP": [fp_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "FN": [fn_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "TN": [tn_out_values_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "Recall": [recall_out_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "Precision": [precision_out_list_with_mos[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]], "F1": [max(F1_out_list_with_mos)], "Threshold": [q_label[F1_out_list_with_mos.index(max(F1_out_list_with_mos))]]}
     sc_t_out=pd.DataFrame(data=score_out)
     sc_t_out.to_csv(f"{output_dir}/with_mos_rate_embryo.csv", index=False)
     sc_t_out
@@ -1143,11 +1219,45 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     metrics_high
 
 
+    #Data for graphs generation
+    gr_table = pd.DataFrame({'Threshold': q_label,
+                                    "TP_no_mos": tp_values_list_no_mos,
+                                    "FP_no_mos": fp_values_list_no_mos,
+                                    "FN_no_mos": fn_values_list_no_mos,
+                                    'Recall_no_mos': recall_list_no_mos,
+                                    'Precision_no_mos': precision_list_no_mos,
+                                    'F1_no_mos': recall_list_no_mos,
+                                    "TP_out_no_mos": tp_out_values_list_no_mos,
+                                    "FP_out_no_mos": fp_out_values_list_no_mos,
+                                    "FN_out_no_mos": fn_out_values_list_no_mos,
+                                    "TN_out_no_mos": tn_out_values_list_no_mos,
+                                    'Recall_out_no_mos': recall_out_list_no_mos,
+                                    'Precision_out_no_mos': precision_out_list_no_mos,
+                                    'F1_out_no_mos': recall_out_list_no_mos,
+                                    "TP_with_mos": tp_values_list_with_mos,
+                                    "FP_with_mos": fp_values_list_with_mos,
+                                    "FN_with_mos": fn_values_list_with_mos,
+                                    'Recall_with_mos': recall_list_with_mos,
+                                    'Precision_with_mos': precision_list_with_mos,
+                                    'F1_with_mos': recall_list_with_mos,
+                                    "TP_out_with_mos": tp_out_values_list_with_mos,
+                                    "FP_out_with_mos": fp_out_values_list_with_mos,
+                                    "FN_out_with_mos": fn_out_values_list_with_mos,
+                                    "TN_out_with_mos": tn_out_values_list_with_mos,
+                                    'Recall_out_with_mos': recall_out_list_with_mos,
+                                    'Precision_out_with_mos': precision_out_list_with_mos,
+                                    'F1_out_with_mos': recall_out_list_with_mos
+                                    })
+    
+    gr_table.to_csv(f"{output_dir}/table_for_graphics.csv", index = False)
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Benchmarking of your CNV-caller.")
     parser.add_argument('-res','--result_path', type=str, required=True, help='Path to your file for analyses (your CNV-caller results)')
     parser.add_argument('-ref', '--reference_CNV_path', type=str, required=True, help='Path to the reference CNV file')
-    parser.add_argument('-se','--selected_embryos',default=['3Bal2_eB', '5Sachk3_eB', '6069_1_K', '6069_plus', '7493_K', '8388_1_K', '8388_3_K', 'Aks1_K', 'Aks_K', 'BOC_K1', 'BOC_e1', 'BTR_e3', 'BTR_e9', 'Bag3_K', 'Bal1_K', 'Bal1_eB', 'Bal3_e', 'Boc_e4', 'CHR_K1', 'CHR_e1', 'Ezh2_K3110', 'Ezh3_K', 'Fed1_e', 'Fisher1_K', 'Gri2_e', 'HAN_K5', 'HAN_e5', 'IlI_K3', 'Isa1_e', 'Kaz1_e', 'Kaz3_K', 'Kira1_K2', 'Kond3_K', 'Kond4_K', 'Kov1_e', 'Kov2_e', 'Kra1_e', 'Kra3_K', 'Kra_e', 'Kul_K', 'Kur3_K', 'Kur3_e', 'Kus1_K', 'Lam1_K', 'MAD_K3', 'MAD_e3', 'Mar1_K', 'Ore1_e27', 'Pan1_K', 'Pash_K3', 'Pash_e3', 'Pet1_K', 'Sach1_K_2110', 'Sach1_e', 'Sach2_K', 'Sav4_K', 'Sav4_e', 'Sav4_eB', 'Say3_K', 'Sheg1_K2', 'Sheg1_e', 'Shen1_K', 'Shen1_e', 'Shen2_K', 'Shen2_e', 'Shen3_K', 'Shen3_e', 'Shur1_K_2205', 'Shur3_K', 'Tok1_K', 'Ton1_e', 'Vla1_K_0705', 'Vla1_e', 'Vor1_K', 'XAH_K13', 'XAH_e13', 'YAK_e4', 'Zap_K2', 'Zap_e2', 'Zap_e3', 'embryo6'], nargs='+', required=False, help='Names of selected embryos')
+    parser.add_argument('-se','--selected_embryos',default=['3Bal2_eB', '5Sachk3_eB', '6069_1_K', '6069_plus', '8388_1_K', '8388_3_K', 'Aks1_K', 'Aks_K', 'BOC_K1', 'BOC_e1', 'BTR_e3', 'BTR_e9', 'Bag3_K', 'Bal1_K', 'Bal1_eB', 'Bal3_e', 'Boc_e4', 'CHR_K1', 'CHR_e1', 'Ezh2_K3110', 'Ezh3_K', 'Fed1_e', 'Fisher1_K', 'Gri2_e', 'HAN_K5', 'HAN_e5', 'IlI_K3', 'Isa1_e', 'Kaz1_e', 'Kaz3_K', 'Kira1_K2', 'Kond3_K', 'Kond4_K', 'Kov1_e', 'Kov2_e', 'Kra1_e', 'Kra_e', 'Kul_K', 'Kur3_K', 'Kur3_e', 'Kus1_K', 'Lam1_K', 'MAD_K3', 'MAD_e3', 'Mar1_K', 'Ore1_e27', 'Pan1_K', 'Pash_K3', 'Pash_e3', 'Pet1_K', 'Sach1_K_2110', 'Sach2_K', 'Sav4_K', 'Sav4_e', 'Sav4_eB', 'Say3_K', 'Sheg1_K2', 'Sheg1_e', 'Shen1_K', 'Shen1_e', 'Shen2_K', 'Shen2_e', 'Shen3_K', 'Shen3_e', 'Shur1_K_2205', 'Shur3_K', 'Tok1_K', 'Ton1_e', 'Vla1_K_0705', 'Vla1_e', 'Vor1_K', 'XAH_K13', 'XAH_e13', 'YAK_e4', 'Zap_K2', 'Zap_e2', 'Zap_e3', 'embryo6'], nargs='+', required=False, help='Names of selected embryos')
     # default value is the list of 81 analysed embryos
     parser.add_argument('-o', '--output_dir', default=f'{os.path.dirname(os.path.abspath(__file__))}/output', type=str, required=False, help='Path to the output')
     args = parser.parse_args()
