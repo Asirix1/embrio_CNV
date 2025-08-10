@@ -400,16 +400,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     plt.clf()
     y = recall_out_list_no_mos
     x = FPR_out_list_no_mos
-
-
-    # Рисуем ROC-кривую оранжевым цветом
     plt.plot(x, y, color='orange')
-
-
-    # Добавляем диагональную пунктирную синюю линию
     plt.plot([0, 1], [0, 1], 'b--')
-
-
     plt.ylabel('TPR')
     plt.xlabel('FPR')
     plt.savefig(f'{output_dir}/ROC_curve_out_no_mos.png')
@@ -929,13 +921,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     plt.clf()
     y = recall_out_list_with_mos
     x = FPR_out_list_with_mos
-
-    # Рисуем ROC-кривую оранжевым цветом
     plt.plot(x, y, color='orange') 
-
-    # Добавляем диагональную пунктирную синюю линию
     plt.plot([0, 1], [0, 1], 'b--')
-
     plt.ylabel('TPR')
     plt.xlabel('FPR')
     plt.savefig(f'{output_dir}/ROC_curve_out_with_mos.png')
