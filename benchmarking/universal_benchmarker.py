@@ -193,6 +193,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     level_no_mos=len(uniq_CNV_no_mos)
     level_no_mos
 
+    variant_calling = pd.DataFrame({'Sample (E-embryo, K-biopsy)': [],'All_rearrangements': [], 'Region_by_ISCN': [], 'Region_in_bp': [],'Detected': [], 'Detected_region':[], 'Comments': [], 'Mosaicism_main': [], 'Level':[]})
+
 
 
     used_embryos_in_comp
@@ -223,7 +225,11 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
                 #Name of detected rearrangement in Genomenal.
                 for contr_n in range(len(embryo_CNV)):
                     TP_rate=0
-                    
+
+                    new_variant = pd.DataFrame({'Sample (E-embryo, K-biopsy)': [embryo_CNV['Sample (E-embryo, K-biopsy)'][contr_n]],'All_rearrangements': [control_CNV['All_rearrangements'][control_CNV.index[control_CNV['Sample (E-embryo, K-biopsy)']==f'{embryo}'][0]]], 'Region_by_ISCN': [embryo_CNV['Region_by_ISCN'][contr_n]], 'Region_in_bp': [embryo_CNV['Region_in_bp'][contr_n]],'Detected': [0], 'Detected_region':[''], 'Mosaicism_main': [embryo_CNV['Mosaicism_main'][contr_n]], 'Level':[quality], 'Comments': ['']})
+
+
+
 
                     for re_n in range(len(result_main_filt)):
 
@@ -233,17 +239,25 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
                             if embryo_CNV['Mosaicism_main'][contr_n]<1:
                                 if (float(result_main_filt['SV_start'][re_n])>=(float(embryo_CNV['CNV_start'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_start'][re_n])<=(float(embryo_CNV['CNV_start'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and (float(result_main_filt['SV_end'][re_n])>=(float(embryo_CNV['CNV_end'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_end'][re_n])<=(float(embryo_CNV['CNV_end'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and int(result_main_filt['SV_chrom'][re_n])==int(embryo_CNV['Chromosome'][contr_n]) and (float(embryo_CNV['Length'][contr_n])*0.5)<abs(float(result_main_filt['SV_length'][re_n])):
                                     P-=1
+                                    new_variant['Detected'][0] = 1
+
                                     
                             elif embryo_CNV['Mosaicism_main'][contr_n]==1:
                                 if TP_rate==0 and (float(result_main_filt['SV_start'][re_n])>=(float(embryo_CNV['CNV_start'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_start'][re_n])<=(float(embryo_CNV['CNV_start'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and (float(result_main_filt['SV_end'][re_n])>=(float(embryo_CNV['CNV_end'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_end'][re_n])<=(float(embryo_CNV['CNV_end'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and int(result_main_filt['SV_chrom'][re_n])==int(embryo_CNV['Chromosome'][contr_n]) and (float(embryo_CNV['Length'][contr_n])*0.5)<abs(float(result_main_filt['SV_length'][re_n])) and int(embryo_CNV['Item_count'][contr_n])==int(result_main_filt['Item_count'][re_n]):
                                     TP+=1
                                     TP_rate=1
+                                    new_variant['Detected'][0] = 1
+                                    new_variant['Detected_region'][0] = f'chr{result_main_filt['SV_chrom'][re_n]}:{result_main_filt['SV_start'][re_n]}-{result_main_filt['SV_end'][re_n]}'
+
+
                                     #there should be only one TP per reference rearrangement
+
 
                                     ID=f'{result_main_filt["SV_chrom"][re_n]}_{result_main_filt["SV_length"][re_n]}'
                                     IDs.append(ID)
                                     ratio.append(float(result_main_filt['SV_length'][re_n])/float(embryo_CNV['Length'][contr_n]))
                                     #How shorter or longer then the reference rearrangemet is the detected rearrangement.
+                    variant_calling=pd.concat([variant_calling, new_variant], ignore_index=True)
 
                 if TP!=0:
                     ratio_mean=statistics.mean(ratio)
@@ -395,6 +409,12 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         else:
             if FPR_out_list_no_mos[i]>FPR_out_list_no_mos[i+1]:
                 AUC_out_no_mos+=(recall_out_list_no_mos[i]*(FPR_out_list_no_mos[i]-FPR_out_list_no_mos[i+1]))
+    variant_calling = variant_calling.sort_values(['Level','Sample (E-embryo, K-biopsy)'])
+    variant_calling.to_csv(f'{output_dir}/variants_table.csv', index = False)
+    variant_calling_optimal_threshold = variant_calling[variant_calling['Level']==q_label[F1_list_no_mos.index(max(F1_list_no_mos))]]
+    variant_calling_optimal_threshold.to_csv(f'{output_dir}/variants_table_optimal_threshold.csv', index = False)
+    variant_calling_optimal_threshold_no_mos = variant_calling_optimal_threshold[variant_calling_optimal_threshold['Mosaicism_main']==1]
+    variant_calling_optimal_threshold_no_mos.to_csv(f'{output_dir}/variants_table_optimal_threshold_no_mos.csv', index = False)
 
         
     plt.clf()
