@@ -231,7 +231,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
                             #If it is not realy (without mosaic CNV) Euploid embryo.
 
                             if embryo_CNV['Mosaicism_main'][contr_n]<1:
-                                if (float(result_main_filt['SV_start'][re_n])>=(float(embryo_CNV['CNV_start'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_start'][re_n])<=(float(embryo_CNV['CNV_start'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and (float(result_main_filt['SV_end'][re_n])>=(float(embryo_CNV['CNV_end'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_end'][re_n])<=(float(embryo_CNV['CNV_end'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and int(result_main_filt['SV_chrom'][re_n])==int(embryo_CNV['Chromosome'][contr_n]) and (float(embryo_CNV['Length'][contr_n])*0.5)<abs(float(result_main_filt['SV_length'][re_n])) and int(embryo_CNV['Item_count'][contr_n])==int(result_main_filt['Item_count'][re_n]):
+                                if (float(result_main_filt['SV_start'][re_n])>=(float(embryo_CNV['CNV_start'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_start'][re_n])<=(float(embryo_CNV['CNV_start'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and (float(result_main_filt['SV_end'][re_n])>=(float(embryo_CNV['CNV_end'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_end'][re_n])<=(float(embryo_CNV['CNV_end'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and int(result_main_filt['SV_chrom'][re_n])==int(embryo_CNV['Chromosome'][contr_n]) and (float(embryo_CNV['Length'][contr_n])*0.5)<abs(float(result_main_filt['SV_length'][re_n])):
                                     P-=1
                                     
                             elif embryo_CNV['Mosaicism_main'][contr_n]==1:
@@ -1249,4 +1249,5 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output_dir', default=f'{os.path.dirname(os.path.abspath(__file__))}/output', type=str, required=False, help='Path to the output')
     args = parser.parse_args()
     main(args.result_path, args.reference_CNV_path, args.selected_embryos, args.output_dir)
+
 
