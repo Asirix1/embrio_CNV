@@ -333,9 +333,15 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
         recall=sum(metrics['TP'])/(sum(metrics['TP'])+sum(metrics['FN']))
         #calculating CNV-level recall value for current threshhold level
+        if sum(metrics['TP'])+sum(metrics['FP']) != 0:
+            precision=sum(metrics['TP'])/(sum(metrics['TP'])+sum(metrics['FP']))
+            #calculating CNV-level precision value for current threshhold level
 
-        precision=sum(metrics['TP'])/(sum(metrics['TP'])+sum(metrics['FP']))
-        #calculating CNV-level precision value for current threshhold level
+            F1=2*recall*precision/(recall+precision)
+            #calculating CNV-level F1 value for current threshhold level
+        else:    
+            precision = 0
+            F1=0
 
         recall_list_no_mos.append(recall)
         #wrinting CNV-level recall value for current threshhold level
@@ -366,11 +372,15 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
         else:
             #No embryos with rearrangements was detected as TP.    But what if there aren't any rearrangements? Nothing. So, we don't use such datasets.
             recall_out=0
+        if TP_out+FP_out !=0:
+            precision_out=TP_out/(TP_out+FP_out) 
+            #calculating embryo-level recall value for current threshhold level
+            F1_out=2*recall_out*precision_out/(recall_out+precision_out)
+            #calculating embryo-level F1 value for current threshhold level
+        else:
+            precision_out == 0
+            F1_out=0
 
-        precision_out=TP_out/(TP_out+FP_out) 
-        #calculating embryo-level recall value for current threshhold level
-        F1=2*recall*precision/(recall+precision)
-        #calculating CNV-level F1 value for current threshhold level
 
         F1_list_no_mos.append(F1)   
         #writing CNV-level F1 value for current threshhold level
@@ -389,9 +399,6 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
         precision_out_list_no_mos.append(precision_out)
         #writing CNV-embryo precision value for current threshhold level
-        
-        F1_out=2*recall_out*precision_out/(recall_out+precision_out)
-        #calculating embryo-level F1 value for current threshhold level
 
         F1_out_list_no_mos.append(F1_out)   
         #writing embryo-level F1 value for current threshhold level
@@ -858,9 +865,15 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
         recall=sum(metrics['TP'])/(sum(metrics['TP'])+sum(metrics['FN']))
         #calculating CNV-level recall value for current threshhold level
+        if sum(metrics['TP'])+sum(metrics['FP']) != 0:
+            precision=sum(metrics['TP'])/(sum(metrics['TP'])+sum(metrics['FP']))
+            #calculating CNV-level precision value for current threshhold level
+            F1=2*recall*precision/(recall+precision)
+            #calculating CNV-level F1 value for current threshhold level            
+        else:
+            precision = 0
+            F1=0
 
-        precision=sum(metrics['TP'])/(sum(metrics['TP'])+sum(metrics['FP']))
-        #calculating CNV-level precision value for current threshhold level
 
         recall_list_with_mos.append(recall)
         #wrinting CNV-level recall value for current threshhold level
@@ -894,10 +907,17 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
             #No embryos with rearrangements was detected as TP.    But what if there aren't any rearrangements? Nothing. So, we don't use such datasets.
             recall_out=0
 
-        precision_out=TP_out/(TP_out+FP_out) 
-        #calculating embryo-level recall value for current threshhold level
-        F1=2*recall*precision/(recall+precision)
-        #calculating CNV-level F1 value for current threshhold level
+        if TP_out+FP_out !=0:
+            precision_out=TP_out/(TP_out+FP_out) 
+            #calculating embryo-level recall value for current threshhold level
+            F1_out=2*recall_out*precision_out/(recall_out+precision_out)
+            #calculating embryo-level F1 value for current threshhold level
+        else:
+            precision_out == 0
+            F1_out=0        
+
+        
+
 
         F1_list_with_mos.append(F1)   
         #writing CNV-level F1 value for current threshhold level
@@ -916,9 +936,6 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
         precision_out_list_with_mos.append(precision_out)
         #writing CNV-embryo precision value for current threshhold level
-        
-        F1_out=2*recall_out*precision_out/(recall_out+precision_out)
-        #calculating embryo-level F1 value for current threshhold level
 
         F1_out_list_with_mos.append(F1_out)   
         #writing embryo-level F1 value for current threshhold level
@@ -1233,27 +1250,27 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
                                     "FN_no_mos": fn_values_list_no_mos,
                                     'Recall_no_mos': recall_list_no_mos,
                                     'Precision_no_mos': precision_list_no_mos,
-                                    'F1_no_mos': recall_list_no_mos,
+                                    'F1_no_mos': F1_list_no_mos,
                                     "TP_out_no_mos": tp_out_values_list_no_mos,
                                     "FP_out_no_mos": fp_out_values_list_no_mos,
                                     "FN_out_no_mos": fn_out_values_list_no_mos,
                                     "TN_out_no_mos": tn_out_values_list_no_mos,
                                     'Recall_out_no_mos': recall_out_list_no_mos,
                                     'Precision_out_no_mos': precision_out_list_no_mos,
-                                    'F1_out_no_mos': recall_out_list_no_mos,
+                                    'F1_out_no_mos': F1_out_list_no_mos,
                                     "TP_with_mos": tp_values_list_with_mos,
                                     "FP_with_mos": fp_values_list_with_mos,
                                     "FN_with_mos": fn_values_list_with_mos,
                                     'Recall_with_mos': recall_list_with_mos,
                                     'Precision_with_mos': precision_list_with_mos,
-                                    'F1_with_mos': recall_list_with_mos,
+                                    'F1_with_mos': F1_list_with_mos,
                                     "TP_out_with_mos": tp_out_values_list_with_mos,
                                     "FP_out_with_mos": fp_out_values_list_with_mos,
                                     "FN_out_with_mos": fn_out_values_list_with_mos,
                                     "TN_out_with_mos": tn_out_values_list_with_mos,
                                     'Recall_out_with_mos': recall_out_list_with_mos,
                                     'Precision_out_with_mos': precision_out_list_with_mos,
-                                    'F1_out_with_mos': recall_out_list_with_mos
+                                    'F1_out_with_mos': F1_out_list_with_mos
                                     })
     
     gr_table.to_csv(f"{output_dir}/table_for_graphics.csv", index = False)
