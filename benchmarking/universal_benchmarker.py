@@ -193,6 +193,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     level_no_mos=len(uniq_CNV_no_mos)
     level_no_mos
 
+    # uniq_CNV_no_mos.to_csv(f'{output_dir}/all_CNV_no_mos.csv', index = False)
+
     variant_calling = pd.DataFrame({'Sample (E-embryo, K-biopsy)': [],'All_rearrangements': [], 'Region_by_ISCN': [], 'Region_in_bp': [],'Detected': [], 'Detected_region':[], 'Comments': [], 'Mosaicism_main': [], 'Level':[]})
 
 
@@ -484,6 +486,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
 
 
+    max_fp_no_mos = max(fp_values_list_no_mos)
 
     fig = go.Figure()
 
@@ -610,6 +613,11 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     sc_t_out.to_csv(f'{output_dir}/no_mos_rate_embryo.csv', index=False)
     sc_t_out
 
+    TP_out_max = len(metrics.query('`contr`!="Euploid embryo"'))
+    max_out_fp = max(fp_out_values_list_no_mos)
+
+
+
 
     fig = go.Figure()
 
@@ -636,8 +644,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
     fig.add_shape(
         type="line",
-        x0=0, y0=len(metrics.query('`contr`!="Euploid embryo"')),  # Start point
-        x1=max(fp_out_values_list_no_mos)+max(fp_out_values_list_no_mos)/10, y1=len(metrics.query('`contr`!="Euploid embryo"')),  # End point
+        x0=0, y0=TP_out_max,  # Start point
+        x1=max(fp_out_values_list_no_mos)+max(fp_out_values_list_no_mos)/10, y1=TP_out_max,  # End point
         line=dict(color="RoyalBlue", width=2)
     )
 
@@ -669,8 +677,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
             bbox=dict(boxstyle='round,pad=0.05', fc='yellow', alpha=0.5)  # Background color for the annotation
         )
 
+
     # Add a horizontal line
-    max_fp = max(fp_out_values_list_no_mos)
     plt.axhline(
         y=len(metrics.query('`contr`!="Euploid embryo"')),  # Y-value for the line
         color='RoyalBlue',  # Line color
@@ -1012,7 +1020,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
 
 
-
+    max_fp_with_mos = max(fp_values_list_with_mos)
 
     fig = go.Figure()
 
@@ -1140,6 +1148,9 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     sc_t_out.to_csv(f"{output_dir}/with_mos_rate_embryo.csv", index=False)
     sc_t_out
 
+    TP_out_max_with_mos = len(metrics.query('`contr`!="Euploid embryo"'))
+    max_out_fp_with_mos = max(fp_out_values_list_no_mos)
+
 
     fig = go.Figure()
 
@@ -1242,6 +1253,31 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     metrics_high.to_csv(f'{output_dir}/with_mos_metrics_high_threshold.csv', index=False)
     metrics_high
 
+    TP_max_no_mos_list = [level_no_mos]
+    for i in range(len(q_label)-1):
+        TP_max_no_mos_list.append(pd.NaT)
+    max_fp_no_mos_list = [max_fp_no_mos]
+    for i in range(len(q_label)-1):
+        max_fp_no_mos_list.append(pd.NaT)
+    TP_out_max_no_mos_list = [TP_out_max]
+    for i in range(len(q_label)-1):
+        TP_out_max_no_mos_list.append(pd.NaT)
+    max_out_fp_no_mos_list = [max_out_fp]
+    for i in range(len(q_label)-1):
+        max_out_fp_no_mos_list.append(pd.NaT)
+    TP_max_with_mos_list = [level_with_mos]
+    for i in range(len(q_label)-1):
+        TP_max_with_mos_list.append(pd.NaT)
+    max_fp_with_mos_list = [max_fp_with_mos]
+    for i in range(len(q_label)-1):
+        max_fp_with_mos_list.append(pd.NaT)
+    TP_out_max_with_mos_list = [TP_out_max_with_mos]
+    for i in range(len(q_label)-1):
+        TP_out_max_with_mos_list.append(pd.NaT)
+    max_out_fp_with_mos_list = [max_out_fp_with_mos]
+    for i in range(len(q_label)-1):
+        max_out_fp_with_mos_list.append(pd.NaT)
+
 
     #Data for graphs generation
     gr_table = pd.DataFrame({'Threshold': q_label,
@@ -1270,7 +1306,15 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
                                     "TN_out_with_mos": tn_out_values_list_with_mos,
                                     'Recall_out_with_mos': recall_out_list_with_mos,
                                     'Precision_out_with_mos': precision_out_list_with_mos,
-                                    'F1_out_with_mos': F1_out_list_with_mos
+                                    'F1_out_with_mos': F1_out_list_with_mos,
+                                    'TP_out_max_no_mos': TP_out_max_no_mos_list,
+                                    'max_out_fp_no_mos': max_out_fp_no_mos_list,
+                                    'TP_out_max_with_mos': TP_out_max_with_mos_list,
+                                    'max_out_fp_with_mos': max_out_fp_with_mos_list,                                   
+                                    'TP_max_no_mos': TP_max_no_mos_list,
+                                    'max_fp_no_mos': max_fp_no_mos_list,
+                                    'TP_max_with_mos': TP_max_with_mos_list,
+                                    'max_fp_with_mos': max_fp_with_mos_list 
                                     })
     
     gr_table.to_csv(f"{output_dir}/table_for_graphics.csv", index = False)
@@ -1286,5 +1330,4 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output_dir', default=f'{os.path.dirname(os.path.abspath(__file__))}/output', type=str, required=False, help='Path to the output')
     args = parser.parse_args()
     main(args.result_path, args.reference_CNV_path, args.selected_embryos, args.output_dir)
-
 
