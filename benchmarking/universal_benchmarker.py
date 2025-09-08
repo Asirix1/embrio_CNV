@@ -37,7 +37,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
     result=preresult.head(0)
     for i in range(len(preresult)):
-        if i+1!=len(preresult) and preresult['Status'][i]==0 and preresult['Parameter'][i]==preresult['Parameter'][i+1] and preresult['Sample (E-embryo, K-biopsy)'][i]==preresult['Sample (E-embryo, K-biopsy)'][i+1] and preresult['SV_chrom'][i]==preresult['SV_chrom'][i+1] and preresult['Item_count'][i]==preresult['Item_count'][i+1] and (preresult['SV_end'][i]-preresult['SV_start'][i+1])<max(preresult['SV_length'][i],preresult['SV_length'][i+1]):
+        if i+1!=len(preresult) and preresult['Status'][i]==0 and preresult['Parameter'][i]==preresult['Parameter'][i+1] and preresult['Sample (E-embryo, K-biopsy)'][i]==preresult['Sample (E-embryo, K-biopsy)'][i+1] and preresult['SV_chrom'][i]==preresult['SV_chrom'][i+1] and preresult['Item_count'][i]==preresult['Item_count'][i+1] and (preresult['SV_start'][i+1]-preresult['SV_end'][i])<max(preresult['SV_length'][i],preresult['SV_length'][i+1]):
             preresult['Status'][i+1]=1
             new_row=preresult.loc[[i]]
             new_row.reset_index(drop=True, inplace=True)
@@ -45,7 +45,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
             while True:
                 i+=1
                 using=0
-                if preresult['Sample (E-embryo, K-biopsy)'][i]==preresult['Sample (E-embryo, K-biopsy)'][i+1] and preresult['Parameter'][i]==preresult['Parameter'][i+1] and preresult['SV_chrom'][i]==preresult['SV_chrom'][i+1] and preresult['Item_count'][i]==preresult['Item_count'][i+1] and (preresult['SV_end'][i]-preresult['SV_start'][i+1])<max(preresult['SV_length'][i],preresult['SV_length'][i+1]):
+                if preresult['Sample (E-embryo, K-biopsy)'][i]==preresult['Sample (E-embryo, K-biopsy)'][i+1] and preresult['Parameter'][i]==preresult['Parameter'][i+1] and preresult['SV_chrom'][i]==preresult['SV_chrom'][i+1] and preresult['Item_count'][i]==preresult['Item_count'][i+1] and (preresult['SV_start'][i+1]-preresult['SV_end'][i])<max(preresult['SV_length'][i],preresult['SV_length'][i+1]):
                     new_row['SV_end'][0]=preresult['SV_end'][i+1]
                     preresult['Status'][i+1]=1
                 else:
@@ -56,8 +56,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
             new_row=preresult.loc[[i]]
             new_row.reset_index(drop=True, inplace=True)
             result=pd.concat([result, new_row], ignore_index=True)
-
-
+    result = result.sort_values(by=['Parameter', 'Sample (E-embryo, K-biopsy)','SV_start'])
+    result.to_csv(f"{output_dir}/merged_for_bemchmarking_results.csv", index = False)
 
     control_CNV_pre=pd.read_csv(reference_CNV_path)
     #path to reference rearrangements
@@ -1330,4 +1330,5 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output_dir', default=f'{os.path.dirname(os.path.abspath(__file__))}/output', type=str, required=False, help='Path to the output')
     args = parser.parse_args()
     main(args.result_path, args.reference_CNV_path, args.selected_embryos, args.output_dir)
+
 
