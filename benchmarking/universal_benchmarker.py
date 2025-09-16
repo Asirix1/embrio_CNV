@@ -242,7 +242,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
             no_mos_embryo_CNV=embryo_CNV.query('`Mosaicism_main`==1')
             TP=0
             test_FP = 0
-            #Test TP counter for each embryo.
+            #Test FP counter for each embryo.
 
             P=len(result_main_filt)
             #Positives = detected CNV.
@@ -1390,4 +1390,5 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output_dir', default=f'{os.path.dirname(os.path.abspath(__file__))}/output', type=str, required=False, help='Path to the output')
     args = parser.parse_args()
     main(args.result_path, args.reference_CNV_path, args.selected_embryos, args.output_dir)
+
 
