@@ -10,6 +10,31 @@ import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 warnings.filterwarnings('ignore', category=pd.errors.SettingWithCopyWarning)
 
+chroms = {'1': 248387328,
+ '2': 242696752,
+ '3': 201105948,
+ '4': 193574945,
+ '5': 182045439,
+ '6': 172126628,
+ '7': 160567428,
+ '8': 146259331,
+ '9': 150617247,
+ '10': 134758134,
+ '11': 135127769,
+ '12': 133324548,
+ '13': 113566686,
+ '14': 101161492,
+ '15': 99753195,
+ '16': 96330374,
+ '17': 84276897,
+ '18': 80542538,
+ '19': 61707364,
+ '20': 66210255,
+ '21': 45090682,
+ '22': 51324926,
+ 'X': 154259566,
+ 'Y': 62460029}
+#information for obtaining data specially about GENA-CNV-caller benchmarking (on T2T genome)
 
 def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
@@ -137,6 +162,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
     q_label=[round(i, 1) for i in quality_list]
 
+    length_metr_list = []
+
     tp_values_list_no_mos=[]
     fp_values_list_no_mos=[]
     fn_values_list_no_mos=[]
@@ -204,6 +231,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
     metrics_dict_no_mos={}
     
     for quality in quality_list:
+        length_metr_dict = {'TP':[], 'FP':[], 'FN':[]}
         s=0
         table={"embryo": [], 'TP': [], 'FP': [], 'TP': [], 'FN': [], 'Recall': [], 'Precision': [], 'IDs':[], 'Ratio_list':[], 'contr': [], 'preIDs':[]}
         for embryo in used_embryos_in_comp:
@@ -213,7 +241,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
             #All reference rearrangements for current embryo.
             no_mos_embryo_CNV=embryo_CNV.query('`Mosaicism_main`==1')
             TP=0
-            #New TP counter for new embryo.
+            test_FP = 0
+            #Test TP counter for each embryo.
 
             P=len(result_main_filt)
             #Positives = detected CNV.
@@ -225,31 +254,45 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
                 ratio=[]
                 IDs=[]
                 #Name of detected rearrangement in Genomenal.
+                detected_dict = {}
+                TP_dict = {}
                 for contr_n in range(len(embryo_CNV)):
+                    if embryo_CNV['Mosaicism_main'][contr_n]<=1:
+                        detected_dict[int(embryo_CNV['Length'][contr_n])]=0
                     TP_rate=0
 
                     new_variant = pd.DataFrame({'Sample (E-embryo, K-biopsy)': [embryo_CNV['Sample (E-embryo, K-biopsy)'][contr_n]],'All_rearrangements': [control_CNV['All_rearrangements'][control_CNV.index[control_CNV['Sample (E-embryo, K-biopsy)']==f'{embryo}'][0]]], 'Region_by_ISCN': [embryo_CNV['Region_by_ISCN'][contr_n]], 'Region_in_bp': [embryo_CNV['Region_in_bp'][contr_n]],'Detected': [0], 'Detected_region':[''], 'Mosaicism_main': [embryo_CNV['Mosaicism_main'][contr_n]], 'Level':[quality], 'Comments': ['']})
 
 
 
+                    
 
                     for re_n in range(len(result_main_filt)):
+                        if contr_n == 0:
+                            TP_dict[re_n] = 0
+
 
                         if str(embryo_CNV['Region_in_bp'][contr_n])!='nan' and str(embryo_CNV['Region_in_bp'][contr_n])!='NaT':
                             #If it is not realy (without mosaic CNV) Euploid embryo.
 
                             if embryo_CNV['Mosaicism_main'][contr_n]<1:
+                                detected_dict[int(embryo_CNV['Length'][contr_n])] = 1
                                 if (float(result_main_filt['SV_start'][re_n])>=(float(embryo_CNV['CNV_start'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_start'][re_n])<=(float(embryo_CNV['CNV_start'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and (float(result_main_filt['SV_end'][re_n])>=(float(embryo_CNV['CNV_end'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_end'][re_n])<=(float(embryo_CNV['CNV_end'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and int(result_main_filt['SV_chrom'][re_n])==int(embryo_CNV['Chromosome'][contr_n]) and (float(embryo_CNV['Length'][contr_n])*0.5)<abs(float(result_main_filt['SV_length'][re_n])):
                                     P-=1
                                     new_variant['Detected'][0] = 1
+                                    TP_dict[re_n] = 1
 
                                     
                             elif embryo_CNV['Mosaicism_main'][contr_n]==1:
                                 if TP_rate==0 and (float(result_main_filt['SV_start'][re_n])>=(float(embryo_CNV['CNV_start'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_start'][re_n])<=(float(embryo_CNV['CNV_start'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and (float(result_main_filt['SV_end'][re_n])>=(float(embryo_CNV['CNV_end'][contr_n])-float(embryo_CNV['Length'][contr_n])/2) and float(result_main_filt['SV_end'][re_n])<=(float(embryo_CNV['CNV_end'][contr_n])+float(embryo_CNV['Length'][contr_n])/2)) and int(result_main_filt['SV_chrom'][re_n])==int(embryo_CNV['Chromosome'][contr_n]) and (float(embryo_CNV['Length'][contr_n])*0.5)<abs(float(result_main_filt['SV_length'][re_n])) and int(embryo_CNV['Item_count'][contr_n])==int(result_main_filt['Item_count'][re_n]):
                                     TP+=1
+                                    TP_dict[re_n] = 1
+                                    length_metr_dict['TP'].append((int(embryo_CNV['Length'][contr_n]), int(chroms[str(int(result_main_filt['SV_chrom'][re_n]))])))
                                     TP_rate=1
                                     new_variant['Detected'][0] = 1
-                                    new_variant['Detected_region'][0] = f'chr{result_main_filt['SV_chrom'][re_n]}:{result_main_filt['SV_start'][re_n]}-{result_main_filt['SV_end'][re_n]}'
+                                    new_variant['Detected_region'][0] = f"chr{result_main_filt['SV_chrom'][re_n]}:{result_main_filt['SV_start'][re_n]}-{result_main_filt['SV_end'][re_n]}"
+                                    detected_dict[int(embryo_CNV['Length'][contr_n])] = 1
+
 
 
                                     #there should be only one TP per reference rearrangement
@@ -257,15 +300,29 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
                                     ID=f'{result_main_filt["SV_chrom"][re_n]}_{result_main_filt["SV_length"][re_n]}'
                                     IDs.append(ID)
-                                    ratio.append(float(result_main_filt['SV_length'][re_n])/float(embryo_CNV['Length'][contr_n]))
+                                    ratio.append(float(result_main_filt['SV_length'][re_n])/float(embryo_CNV['Chromosome'][contr_n]))
                                     #How shorter or longer then the reference rearrangemet is the detected rearrangement.
+                for re_n in range(len(result_main_filt)):            
+                    if TP_dict[re_n] == 0:                                         
+                        test_FP+=1
+                        length_metr_dict['FP'].append((int(result_main_filt['SV_length'][re_n]), int(chroms[str(int(result_main_filt['SV_chrom'][re_n]))])))
+                    
                     variant_calling=pd.concat([variant_calling, new_variant], ignore_index=True)
+                    if embryo_CNV['Mosaicism_main'][contr_n]<=1:
+                        if detected_dict[int(embryo_CNV['Length'][contr_n])] == 0:
+                            length_metr_dict['FN'].append((int(embryo_CNV['Length'][contr_n]), int(chroms[str(int(embryo_CNV['Chromosome'][contr_n]))])))
+
+
+
 
                 if TP!=0:
                     ratio_mean=statistics.mean(ratio)
                     #How shorter or longer in average then the reference rearrangemets are the detected rearrangements.
 
             FP=P-TP
+            if FP!=test_FP:
+                print(embryo,': ', FP,' ', TP,' ', P,' ',len(result_main_filt), ' and ', test_FP)
+            #It will be activated in case of an error.
             
             FN=len(no_mos_embryo_CNV)-TP
         
@@ -410,6 +467,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
         fn_out_values_list_no_mos.append(FN_out)
         #writing embryo-levels FN for current Threshold level for ROC-like graph
+
+        length_metr_list.append(length_metr_dict)
 
     AUC_out_no_mos = 0
     for i in range(len(recall_out_list_no_mos)-1,-1,-1):
@@ -1314,7 +1373,8 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
                                     'TP_max_no_mos': TP_max_no_mos_list,
                                     'max_fp_no_mos': max_fp_no_mos_list,
                                     'TP_max_with_mos': TP_max_with_mos_list,
-                                    'max_fp_with_mos': max_fp_with_mos_list 
+                                    'max_fp_with_mos': max_fp_with_mos_list,
+                                    'metrics_vs_length': length_metr_list  #data for metrics desctribution depending on CNV length
                                     })
     
     gr_table.to_csv(f"{output_dir}/table_for_graphics.csv", index = False)
@@ -1330,5 +1390,4 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output_dir', default=f'{os.path.dirname(os.path.abspath(__file__))}/output', type=str, required=False, help='Path to the output')
     args = parser.parse_args()
     main(args.result_path, args.reference_CNV_path, args.selected_embryos, args.output_dir)
-
 
