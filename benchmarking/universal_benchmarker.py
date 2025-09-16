@@ -300,7 +300,7 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
 
                                     ID=f'{result_main_filt["SV_chrom"][re_n]}_{result_main_filt["SV_length"][re_n]}'
                                     IDs.append(ID)
-                                    ratio.append(float(result_main_filt['SV_length'][re_n])/float(embryo_CNV['Chromosome'][contr_n]))
+                                    ratio.append(float(result_main_filt['SV_length'][re_n])/float(embryo_CNV['Length'][contr_n]))
                                     #How shorter or longer then the reference rearrangemet is the detected rearrangement.
                 for re_n in range(len(result_main_filt)):            
                     if TP_dict[re_n] == 0:                                         
