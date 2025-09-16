@@ -289,29 +289,22 @@ def main(preresult_path, reference_CNV_path, selected_embryos, output_dir):
                                     TP_dict[re_n] = 1
                                     length_metr_dict['TP'].append((int(embryo_CNV['Length'][contr_n]), int(chroms[str(int(result_main_filt['SV_chrom'][re_n]))])))
                                     TP_rate=1
+                                    #there should be only one TP per reference rearrangement
                                     new_variant['Detected'][0] = 1
                                     new_variant['Detected_region'][0] = f"chr{result_main_filt['SV_chrom'][re_n]}:{result_main_filt['SV_start'][re_n]}-{result_main_filt['SV_end'][re_n]}"
                                     detected_dict[int(embryo_CNV['Length'][contr_n])] = 1
-
-
-
-                                    #there should be only one TP per reference rearrangement
-
-
                                     ID=f'{result_main_filt["SV_chrom"][re_n]}_{result_main_filt["SV_length"][re_n]}'
                                     IDs.append(ID)
                                     ratio.append(float(result_main_filt['SV_length'][re_n])/float(embryo_CNV['Length'][contr_n]))
-                                    #How shorter or longer then the reference rearrangemet is the detected rearrangement.
+                                    #How shorter or longer then the reference rearrangemet is the detected rearrangement                    
+                    variant_calling=pd.concat([variant_calling, new_variant], ignore_index=True)
+                    if embryo_CNV['Mosaicism_main'][contr_n]==1:
+                        if detected_dict[int(embryo_CNV['Length'][contr_n])] == 0:
+                            length_metr_dict['FN'].append((int(embryo_CNV['Length'][contr_n]), int(chroms[str(int(embryo_CNV['Chromosome'][contr_n]))])))
                 for re_n in range(len(result_main_filt)):            
                     if TP_dict[re_n] == 0:                                         
                         test_FP+=1
                         length_metr_dict['FP'].append((int(result_main_filt['SV_length'][re_n]), int(chroms[str(int(result_main_filt['SV_chrom'][re_n]))])))
-                    
-                    variant_calling=pd.concat([variant_calling, new_variant], ignore_index=True)
-                    if embryo_CNV['Mosaicism_main'][contr_n]<=1:
-                        if detected_dict[int(embryo_CNV['Length'][contr_n])] == 0:
-                            length_metr_dict['FN'].append((int(embryo_CNV['Length'][contr_n]), int(chroms[str(int(embryo_CNV['Chromosome'][contr_n]))])))
-
 
 
 
