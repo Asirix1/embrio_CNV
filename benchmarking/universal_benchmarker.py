@@ -1384,4 +1384,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(args.result_path, args.reference_CNV_path, args.selected_embryos, args.output_dir)
 
-
