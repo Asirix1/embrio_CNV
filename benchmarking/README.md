@@ -8,7 +8,7 @@ Python >= 3.10.14 with pandas < 3.0, matplotlib, seaborn, plotly, statistics and
 
 # Run
 ```
-python3 universal_benchmarker.py -res predictions.csv -ref all_rearrangeements_in_bp_21.01.csv -se list_of_used_embryos -o OUTPUT_DIR
+python3 universal_benchmarker.py -res predictions.csv -ref rearrangements_T2T_refined.csv -se list_of_used_embryos -o OUTPUT_DIR
 ```
 
 # Options:
